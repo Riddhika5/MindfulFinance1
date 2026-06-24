@@ -212,6 +212,21 @@ export default function App() {
         </div>
       </header>
 
+      <section className="intro">
+        <p>
+          <strong>The goal: your financial well-being</strong> — feeling in control of your money
+          today and calm about tomorrow. MindfulFinance shows how social media quietly nudges your
+          spending, spots the behavioural biases behind it, and offers gentle nudges, smarter
+          defaults, and mindfulness prompts to help you spend on purpose.
+        </p>
+        <p className="small muted">
+          📱 <strong>Your Feed</strong> is a scroll of real financial posts (pulled from Reddit) or
+          realistic sample posts — each auto-labelled <em>hype</em>, <em>scam-risk</em>, or{" "}
+          <em>calm advice</em>. Tap “this influenced me” on any post that made you want to buy or
+          sell, and the app learns what’s really driving your money decisions.
+        </p>
+      </section>
+
       <nav className="tabs">
         <button className={tab === "feed" ? "tab tab-on" : "tab"} onClick={() => setTab("feed")}>
           📱 Feed

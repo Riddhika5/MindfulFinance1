@@ -26,6 +26,8 @@ const FILES = {
 };
 
 const USE_DB = !!process.env.MONGODB_URI;
+console.log("MONGODB_URI exists?", !!process.env.MONGODB_URI);
+console.log("DB Name:", process.env.MONGODB_DB);
 
 // ---------------------------------------------------------------------------
 // MongoDB connection (only used when MONGODB_URI is set). We connect once and

@@ -4,7 +4,7 @@
 //   - average financial well-being, mindfulness, social-media influence
 //   - the KEY insight: do more-mindful people report fewer biases?
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { SURVEY_SECTIONS, SCALE_ITEMS, QUIZ_ITEMS, LIKERT, scoreSurvey } from "../lib/survey.js";
 
 export default function Survey() {
@@ -13,8 +13,23 @@ export default function Survey() {
   const [results, setResults] = useState(null);
   const [submitted, setSubmitted] = useState(false);
 
+  // Refs let us auto-scroll the next question into view after each answer.
+  const questionRefs = useRef({});
+  const submitRef = useRef(null);
+  const orderedIds = useMemo(
+    () => SURVEY_SECTIONS.flatMap((s) => s.items).map((i) => i.id),
+    []
+  );
+
   function setAnswer(id, value) {
     setAnswers((prev) => ({ ...prev, [id]: value }));
+    // Auto-advance: smoothly bring the NEXT question into view (or the Submit
+    // button, if this was the last question) so the user never has to scroll.
+    const nextId = orderedIds[orderedIds.indexOf(id) + 1];
+    setTimeout(() => {
+      const target = nextId ? questionRefs.current[nextId] : submitRef.current;
+      if (target) target.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 120);
   }
 
   async function loadResults() {
@@ -79,7 +94,7 @@ export default function Survey() {
               {section.note && <p className="small muted">{section.note}</p>}
 
               {section.items.map((item) => (
-                <div className="q" key={item.id}>
+                <div className="q" key={item.id} ref={(el) => (questionRefs.current[item.id] = el)}>
                   <p className="q-text">{item.q}</p>
 
                   {item.type === "choice" && (
@@ -127,7 +142,7 @@ export default function Survey() {
             </div>
           ))}
 
-          <button className="btn btn-primary" onClick={submit}>
+          <button className="btn btn-primary" onClick={submit} ref={submitRef}>
             Submit my answers
           </button>
           {status && <p className="small" style={{ marginTop: 8 }}>{status}</p>}

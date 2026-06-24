@@ -9,7 +9,7 @@
 //   shared "community results" and (in production) serves the built web app.
 // ===========================================================================
 
-import express from "express";
+import "dotenv/config";import express from "express";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";

@@ -760,8 +760,106 @@ body {
   cursor: not-allowed;
 }
 
+/* ---- intro blurb (under the title) ---- */
+.intro {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 6px 24px rgba(15, 23, 42, 0.05);
+}
+.intro p {
+  margin: 0 0 8px;
+  line-height: 1.55;
+}
+.intro p:last-child {
+  margin-bottom: 0;
+}
+.intro em {
+  font-style: normal;
+  font-weight: 700;
+}
+
 /* ---- footer ---- */
 .app-footer {
   margin-top: 22px;
   text-align: center;
+}
+
+/* ===========================================================================
+   MOBILE / PHONE FRIENDLY  (≤ 600px wide)
+   Stacks the header, wraps the tabs into rows instead of squashing them,
+   and lets the feed scroll with the page so phones feel natural.
+=========================================================================== */
+@media (max-width: 600px) {
+  .app {
+    padding: 14px 12px 48px;
+  }
+
+  .app-header {
+    gap: 10px;
+  }
+  .app-header h1 {
+    font-size: 23px;
+  }
+  .tagline {
+    font-size: 13px;
+  }
+  /* feed-source picker spans the full width on its own line */
+  .source-picker,
+  .source-picker select {
+    width: 100%;
+  }
+
+  /* tabs: wrap into 3-per-row instead of cramming 6 across one line */
+  .tabs {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .tab {
+    flex: 1 1 calc(33.333% - 6px);
+    padding: 9px 6px;
+    font-size: 13px;
+  }
+
+  .intro {
+    padding: 12px 14px;
+  }
+  .panel {
+    padding: 14px;
+  }
+
+  /* score card stacks vertically so the ring sits above the text */
+  .scorecard {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  /* charts: narrower label column so the bars still fit */
+  .chart-row {
+    grid-template-columns: 90px 1fr 52px;
+    font-size: 12px;
+  }
+
+  /* stacked inputs in the expense form */
+  .expense-form .row {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* community stats wrap two-per-row */
+  .stat-row {
+    flex-wrap: wrap;
+  }
+  .stat {
+    flex: 1 1 calc(50% - 6px);
+    min-width: 0;
+  }
+
+  /* let the whole page scroll instead of a tiny inner feed box */
+  .feed-scroll {
+    max-height: none;
+  }
 }

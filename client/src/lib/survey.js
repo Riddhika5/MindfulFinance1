@@ -27,6 +27,27 @@ export const SURVEY_SECTIONS = [
         options: ["Under 18", "18–24", "25–34", "35–44", "45+", "Prefer not to say"],
       },
       {
+        id: "gender",
+        type: "choice",
+        q: "Your gender",
+        options: ["Female", "Male", "Non-binary", "Prefer not to say"],
+      },
+      {
+        id: "occupation",
+        type: "choice",
+        q: "Your occupation",
+        options: [
+          "Student",
+          "Salaried / employed",
+          "Self-employed / business",
+          "Freelancer / gig work",
+          "Homemaker",
+          "Retired",
+          "Not currently working",
+          "Prefer not to say",
+        ],
+      },
+      {
         id: "sm_time",
         type: "choice",
         q: "How much time do you spend on social media per day?",
@@ -139,6 +160,8 @@ export function scoreSurvey(answers) {
 
   return {
     age: answers.age || "",
+    gender: answers.gender || "",
+    occupation: answers.occupation || "",
     sm_time: answers.sm_time || "",
     bias,
     biasAvg: avg(Object.values(bias)),
