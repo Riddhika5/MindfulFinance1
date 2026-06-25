@@ -65,7 +65,7 @@ export const SURVEY_SECTIONS = [
   },
   {
     title: "How you make money decisions",
-    note: "These map to the six behavioural biases the app detects.",
+    note: "These map to the behavioural biases the app detects.",
     items: [
       { id: "fomo", type: "scale", cat: "bias", biasName: "FOMO", q: "I worry about missing out on a deal or opportunity I see online." },
       { id: "herding", type: "scale", cat: "bias", biasName: "Herding", q: "If many people online are buying something, I feel I should buy it too." },
@@ -73,6 +73,8 @@ export const SURVEY_SECTIONS = [
       { id: "recency", type: "scale", cat: "bias", biasName: "Recency bias", q: "Recent news or posts strongly change how I spend or invest." },
       { id: "anchor", type: "scale", cat: "bias", biasName: "Anchoring", q: "A “was ₹999, now ₹499” discount makes me much more likely to buy." },
       { id: "impulse", type: "scale", cat: "bias", biasName: "Impulse spending", q: "I make unplanned purchases after scrolling social media." },
+      { id: "overconf", type: "scale", cat: "bias", biasName: "Overconfidence", q: "I'm confident I can pick winning investments or spot good deals better than most people." },
+      { id: "sunkcost", type: "scale", cat: "bias", biasName: "Sunk-cost fallacy", q: "When something I bought loses value, I add more money to “recover” instead of walking away." },
     ],
   },
   {

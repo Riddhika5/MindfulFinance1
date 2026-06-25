@@ -3,13 +3,14 @@
 // the three tabs (Feed, Expenses, Insights) together.
 // ===========================================================================
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import Feed from "./components/Feed.jsx";
 import ExpenseTracker from "./components/ExpenseTracker.jsx";
 import InsightsPanel from "./components/InsightsPanel.jsx";
 import CommunityResults from "./components/CommunityResults.jsx";
 import Survey from "./components/Survey.jsx";
 import Challenge from "./components/Challenge.jsx";
+import Landing from "./components/Landing.jsx";
 import { tagPost } from "./lib/tagging.js";
 import { detectBiases } from "./lib/biasEngine.js";
 import { computeScore } from "./lib/score.js";
@@ -17,6 +18,7 @@ import { load, save } from "./lib/storage.js";
 
 export default function App() {
   const [tab, setTab] = useState("feed");
+  const [entered, setEntered] = useState(false); // false = show the landing page
 
   // ---- feed state ---------------------------------------------------------
   const [source, setSource] = useState("simulated"); // which feed source to ask for
@@ -145,6 +147,35 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [score.score, score.hasData]);
 
+  // ---- scroll-reveal: cards fade/rise in automatically as they enter view ---
+  // Runs after each render that changes content. Adds a hidden ".reveal" state,
+  // then ".reveal-in" the moment a card scrolls into view (staggered for a
+  // cascade). If JS is unavailable the cards simply stay visible (no .reveal).
+  useLayoutEffect(() => {
+    if (typeof IntersectionObserver === "undefined") return;
+    const sel = ".post, .bias-card, .stat, .survey-section, .challenge-template, .expense-item";
+    const els = Array.from(document.querySelectorAll(sel)).filter((el) => !el.dataset.revealed);
+    if (els.length === 0) return;
+    els.forEach((el, i) => {
+      el.classList.add("reveal");
+      el.style.setProperty("--reveal-delay", `${Math.min(i, 6) * 70}ms`); // gentle stagger
+    });
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add("reveal-in");
+            e.target.dataset.revealed = "1";
+            io.unobserve(e.target);
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: "0px 0px -6% 0px" }
+    );
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, [tab, posts, biases, expenses, challenges]);
+
   const biasCount = biases.length;
 
   // ---- challenge handlers (before/after score tracking) -------------------
@@ -192,11 +223,21 @@ export default function App() {
     };
   }, [score, biases, expenses, votes]);
 
+  // Show the Cuberto-style landing first; "Enter the app" flips this on.
+  if (!entered) return <Landing onEnter={() => setEntered(true)} />;
+
   return (
     <div className="app">
       <header className="app-header">
         <div>
-          <h1>🪙 MindfulFinance</h1>
+          <h1
+            onClick={() => setEntered(false)}
+            title="Back to home"
+            style={{ cursor: "pointer" }}
+          >
+            <span className="logo-emoji">🪙</span>{" "}
+            <span className="logo-text">MindfulFinance</span>
+          </h1>
           <p className="tagline">See how social media nudges your spending — and take back control.</p>
         </div>
 
@@ -220,6 +261,13 @@ export default function App() {
           control.
         </p>
       </section>
+
+      <div className="marquee" aria-hidden="true">
+        <div className="marquee-track">
+          <span>Spend mindfully ✦ Save with intention ✦ Beat FOMO ✦ Notice the nudge ✦ Invest calmly ✦ Pause before you buy ✦&nbsp;</span>
+          <span>Spend mindfully ✦ Save with intention ✦ Beat FOMO ✦ Notice the nudge ✦ Invest calmly ✦ Pause before you buy ✦&nbsp;</span>
+        </div>
+      </div>
 
       <nav className="tabs">
         <button className={tab === "feed" ? "tab tab-on" : "tab"} onClick={() => setTab("feed")}>

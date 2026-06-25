@@ -188,5 +188,76 @@ export function detectBiases({ expenses = [], engagements = [] }) {
     });
   }
 
+  // -------------------------------------------------------------------------
+  // 8) Overconfidence — overestimating your own skill; over-trading
+  // -------------------------------------------------------------------------
+  const overWords = [
+    "guaranteed",
+    "can't lose",
+    "cant lose",
+    "sure thing",
+    "easy money",
+    "i know",
+    "double your",
+    "100%",
+    "to the moon",
+    "trust me",
+  ];
+  const overConfidentPosts = engagements.filter(
+    (e) => (e.influenced || e.trade) && hasAny(e.post.text, overWords)
+  );
+  if (tradeUrge.length >= 3 || overConfidentPosts.length >= 1) {
+    const evidence = [];
+    if (tradeUrge.length >= 3)
+      evidence.push(`Felt the urge to buy/sell on ${tradeUrge.length} posts — frequent trading.`);
+    overConfidentPosts.forEach((e) =>
+      evidence.push(`Acted on a 'sure win' style post by ${e.post.author}.`)
+    );
+    found.push({
+      key: "overconfidence",
+      name: "Overconfidence",
+      reason:
+        "You acted on many trade urges and/or 'guaranteed win' content. Overconfidence is overestimating how much we know or can predict — it leads to over-trading and outsized bets. Research links it to lower returns: we trade too often and ignore what we don't know.",
+      evidence,
+    });
+  }
+
+  // -------------------------------------------------------------------------
+  // 9) Sunk-cost fallacy — adding more money to 'recover' a loss
+  // -------------------------------------------------------------------------
+  const sunkWords = [
+    "average down",
+    "averaging down",
+    "buy the dip",
+    "double down",
+    "already invested",
+    "add more to recover",
+    "can't sell at a loss",
+    "cant sell at a loss",
+    "hold to recover",
+    "make it back",
+    "throw good money",
+  ];
+  const sunkPosts = engagements.filter(
+    (e) => (e.influenced || e.trade) && hasAny(e.post.text, sunkWords)
+  );
+  const sunkSpends = expenses.filter((e) => hasAny(e.note, sunkWords));
+  if (sunkPosts.length >= 1 || sunkSpends.length >= 1) {
+    const evidence = [];
+    sunkPosts.forEach((e) =>
+      evidence.push(`Reacted to 'recover your losses / double down' content by ${e.post.author}.`)
+    );
+    sunkSpends.forEach((e) =>
+      evidence.push(`Spent ₹${e.amount} on "${e.category}" to 'make back' an earlier loss.`)
+    );
+    found.push({
+      key: "sunk-cost",
+      name: "Sunk-cost fallacy",
+      reason:
+        "You added money to 'recover' or 'average down' on something already losing. The sunk-cost fallacy is letting money you've ALREADY spent (and can't get back) push you to spend more, instead of judging the decision fresh from today. It's throwing good money after bad.",
+      evidence,
+    });
+  }
+
   return found;
 }

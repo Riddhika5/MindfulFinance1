@@ -57,6 +57,22 @@ export const SOLUTIONS = {
     mindful:
       "Notice the discomfort of not understanding — that's a signal, not something to hide. Pause and ask 'do I actually get how this works?' before acting.",
   },
+  overconfidence: {
+    nudge:
+      "Before any trade, write your prediction down. Review your past calls monthly — seeing your real hit-rate keeps confidence honest.",
+    choice:
+      "Default to fewer, slower moves: a fixed monthly auto-invest beats frequent self-directed trades and removes the urge to 'time' the market.",
+    mindful:
+      "Notice the certainty you feel. Ask: 'What would have to be true for me to be wrong?' Confidence is not the same as being right.",
+  },
+  "sunk-cost": {
+    nudge:
+      "Ask the reset question: 'Knowing only today's price, would I buy this now?' If no, money already spent shouldn't change that.",
+    choice:
+      "Pre-set an exit/stop-loss rule when you enter, so walking away is decided calmly in advance — not in the heat of a loss.",
+    mindful:
+      "Notice the pull to 'not waste' what you've put in. Money already gone is gone; breathe and choose from where you are now, not the past.",
+  },
 };
 
 // A general fallback so every bias always has something useful to show.
