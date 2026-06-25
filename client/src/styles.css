@@ -1,5 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
 /* ---------------------------------------------------------------------------
-   styles.css — one clean, modern look. Plain CSS, no frameworks needed.
+   styles.css — modern, Cuberto-inspired look. Plain CSS, no frameworks.
 --------------------------------------------------------------------------- */
 :root {
   --bg: #0f172a;
@@ -22,9 +24,10 @@
 
 body {
   margin: 0;
-  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
   background: linear-gradient(160deg, #eef2ff 0%, #f8fafc 40%, #f1f5f9 100%);
   color: var(--ink);
+  -webkit-font-smoothing: antialiased;
 }
 
 .app {
@@ -861,5 +864,121 @@ body {
   /* let the whole page scroll instead of a tiny inner feed box */
   .feed-scroll {
     max-height: none;
+  }
+}
+
+/* ===========================================================================
+   MODERN THEME POLISH (Cuberto-inspired) — bold type, soft motion, depth.
+=========================================================================== */
+
+/* Big, bold title */
+.app-header h1 {
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.panel-head h2 {
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+/* Smooth micro-interactions across interactive elements */
+.btn,
+.tab,
+.chip,
+.post,
+.bias-card,
+.stat,
+.quiz-opt,
+.likert-btn,
+.challenge-template {
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease,
+    border-color 0.18s ease, color 0.18s ease;
+}
+
+/* Pill buttons + tabs that gently lift on hover */
+.btn {
+  border-radius: 999px;
+}
+.btn:hover {
+  transform: translateY(-1px);
+}
+.tab {
+  border-radius: 999px;
+}
+.tab:hover {
+  transform: translateY(-1px);
+}
+.tab-on {
+  box-shadow: 0 10px 22px rgba(99, 102, 241, 0.32);
+}
+
+/* Cards rise gently on hover */
+.post:hover,
+.bias-card:hover,
+.stat:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.1);
+}
+.chip:hover {
+  transform: translateY(-1px);
+}
+
+/* Gentle entrance motion */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.intro,
+.panel,
+.scorecard,
+.analysis {
+  animation: rise 0.42s ease both;
+}
+.post {
+  /* opacity-only entrance so the hover-lift transform still works */
+  animation: fade 0.35s ease both;
+}
+
+/* Friendly accent bar on the intro card */
+.intro {
+  border-left: 4px solid var(--brand);
+}
+
+/* "What's a feed?" helper line */
+.feed-what {
+  margin: 2px 0 12px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: #4b5563;
+  background: #f5f3ff;
+  border: 1px solid #e9e5ff;
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+.feed-what em {
+  font-style: normal;
+  font-weight: 700;
+  color: var(--brand-d);
+}
+
+/* keep the title readable on phones (wins because it comes last) */
+@media (max-width: 600px) {
+  .app-header h1 {
+    font-size: 25px;
   }
 }

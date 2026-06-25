@@ -19,6 +19,13 @@ export default function Feed({ posts, loading, sourceInfo, engagements, onToggle
         </button>
       </div>
 
+      <p className="feed-what">
+        <strong>What's a feed?</strong> A scroll of real financial posts (pulled from Reddit) or
+        realistic samples — each auto-labelled <em>hype</em>, <em>scam-risk</em>, or{" "}
+        <em>calm advice</em>. Just tap how a post made you feel — that's how MindfulFinance learns
+        your money biases.
+      </p>
+
       {sourceInfo && (
         <p className="muted small">
           Showing <strong>{sourceInfo.sourceUsed}</strong> posts
