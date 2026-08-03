@@ -1,38 +1,37 @@
-// Landing.jsx — a Cuberto-inspired landing page: a big bold hero, an
-// auto-scrolling marquee, and full-width feature sections that reveal as you
-// scroll. The "Enter the app" buttons call onEnter() to switch into the tool.
+// Landing.jsx — the front door. One primary action: start the assessment.
+// Returning participants who already finished get a "continue" route instead.
 
 import { useEffect, useRef } from "react";
+import { ITEM_COUNT } from "../lib/instruments.js";
 
 const FEATURES = [
   {
+    emoji: "🧪",
+    title: "Every question from a validated scale",
+    text: "MAAS, the CFPB Financial Well-Being Scale, the Lusardi–Mitchell literacy questions, and published behavioural-bias instruments. Nothing here was made up for the occasion.",
+  },
+  {
     emoji: "📱",
-    title: "A feed that reveals itself",
-    text: "Real financial posts — auto-tagged hype, scam-risk, or calm advice. Tap how each one made you feel.",
+    title: "A feed, not a form",
+    text: "Part of the assessment is a simulated social media feed. You react to posts the way you normally would, and what you do is measured — not just what you say you'd do.",
   },
   {
     emoji: "🧠",
-    title: "Spot the hidden biases",
-    text: "Tiny mental shortcuts quietly steer your money the wrong way. The app surfaces the ones affecting you and shows, in plain English, exactly how to correct each.",
+    title: "Your behavioural bias profile",
+    text: "Ten tendencies — herding, FOMO, anchoring, overconfidence and more — scored on a common scale and shown as a profile you can actually read.",
   },
   {
-    emoji: "🧘",
-    title: "Nudges, not lectures",
-    text: "Gentle nudges, smarter defaults, and mindfulness prompts so you spend, save, and invest on purpose.",
-  },
-  {
-    emoji: "📈",
-    title: "A well-being score",
-    text: "One number, 0–100, that climbs as your money decisions get calmer and more deliberate.",
+    emoji: "🌱",
+    title: "Then the part that helps",
+    text: "Short learning modules chosen for your profile, a weekly challenge, spending tracking, and a check-up you can retake to see what changed.",
   },
 ];
 
-export default function Landing({ onEnter }) {
+export default function Landing({ onEnter, onAssess, completed }) {
   const rootRef = useRef(null);
 
-  // Reveal each section as it scrolls into view.
   useEffect(() => {
-    if (typeof IntersectionObserver === "undefined" || !rootRef.current) return;
+    if (typeof IntersectionObserver === "undefined" || !rootRef.current) return undefined;
     const els = rootRef.current.querySelectorAll(".land-reveal");
     const io = new IntersectionObserver(
       (entries) =>
@@ -53,17 +52,27 @@ export default function Landing({ onEnter }) {
       <section className="land-hero">
         <p className="land-eyebrow land-reveal">🪙 MindfulFinance</p>
         <h1 className="land-title land-reveal">
-          Spend, save &amp; invest
+          Know your
           <br />
-          <span className="land-grad">with intention.</span>
+          <span className="land-grad">financial decision style.</span>
         </h1>
         <p className="land-sub land-reveal">
-          See how social media nudges your money — spot the behavioural biases behind it, and take
-          back control with nudges, smarter defaults, and mindfulness.
+          See how social media shapes the money decisions you make — measured with published research
+          instruments, and returned to you as a profile you can act on.
         </p>
-        <button className="land-cta land-reveal" onClick={onEnter}>
-          Enter the app →
-        </button>
+        <div className="land-cta-row land-reveal">
+          {completed ? (
+            <>
+              <button className="land-cta" onClick={onEnter}>Continue to my dashboard →</button>
+              <button className="land-cta land-cta-ghost" onClick={onAssess}>Retake the assessment</button>
+            </>
+          ) : (
+            <button className="land-cta" onClick={onAssess}>Start assessment →</button>
+          )}
+        </div>
+        <p className="land-fineprint land-reveal">
+          {ITEM_COUNT} questions · 12–15 minutes · anonymous · no sign-up
+        </p>
       </section>
 
       <div className="marquee" aria-hidden="true">
@@ -84,9 +93,9 @@ export default function Landing({ onEnter }) {
       ))}
 
       <section className="land-final land-reveal">
-        <h2>Ready to spend on purpose?</h2>
-        <button className="land-cta" onClick={onEnter}>
-          Enter the app →
+        <h2>Ready to find out?</h2>
+        <button className="land-cta" onClick={onAssess}>
+          {completed ? "Retake the assessment →" : "Start assessment →"}
         </button>
       </section>
     </div>

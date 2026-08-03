@@ -15,12 +15,15 @@ import fs from "fs";
 import { fileURLToPath } from "url";
 import { getFeed, listSources } from "./feedSources.js";
 import { addSubmission, getAggregate, addSurvey, getSurveyAggregate } from "./store.js";
+import { addResponse, deleteResponse, getResponseAggregate, exportCsv, exportFeedCsv } from "./responses.js";
+import { exportXlsxBuffer } from "./excel.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-app.use(express.json());
+// Item-level payloads are larger than the 100kb express default.
+app.use(express.json({ limit: "2mb" }));
 
 // Simple health check — open http://localhost:4000/api/health to test.
 app.get("/api/health", (_req, res) => {
@@ -76,6 +79,91 @@ app.post("/api/survey", async (req, res) => {
 app.get("/api/survey-results", async (_req, res) => {
   try {
     res.json(await getSurveyAggregate());
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ===========================================================================
+// RESEARCH ENDPOINTS (instrument version 2.0 — validated scales)
+// ===========================================================================
+
+// Save one completed assessment (item-level answers + derived scores).
+app.post("/api/response", async (req, res) => {
+  try {
+    const saved = await addResponse(req.body || {});
+    res.json({ ok: true, participantId: saved.participantId, wave: saved.wave });
+  } catch (err) {
+    res.status(400).json({ ok: false, error: err.message });
+  }
+});
+
+// Participant-initiated withdrawal. Unauthenticated by design — see the note on
+// deleteResponse. Withdrawal must never be harder than taking part.
+app.delete("/api/response/:participantId", async (req, res) => {
+  try {
+    res.json(await deleteResponse(req.params.participantId));
+  } catch (err) {
+    res.status(400).json({ ok: false, error: err.message });
+  }
+});
+
+// Coarse, non-identifying aggregate for the public community view.
+app.get("/api/response-aggregate", async (_req, res) => {
+  try {
+    res.json(await getResponseAggregate());
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Researcher-only dataset export. Requires RESEARCHER_KEY to be set in the
+// environment; without it the endpoints are disabled entirely rather than
+// falling open.
+// ---------------------------------------------------------------------------
+function researcherOnly(req, res) {
+  const key = process.env.RESEARCHER_KEY;
+  if (!key) {
+    res.status(503).json({ error: "Export disabled: RESEARCHER_KEY is not configured." });
+    return false;
+  }
+  const given = req.get("x-researcher-key") || req.query.key;
+  if (given !== key) {
+    res.status(401).json({ error: "Unauthorised." });
+    return false;
+  }
+  return true;
+}
+
+// The main research export: a multi-sheet SPSS-ready workbook.
+app.get("/api/export/data.xlsx", async (req, res) => {
+  if (!researcherOnly(req, res)) return;
+  try {
+    const buf = await exportXlsxBuffer();
+    const stamp = new Date().toISOString().slice(0, 10);
+    res
+      .type("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+      .attachment(`mindfulfinance-data-${stamp}.xlsx`)
+      .send(Buffer.from(buf));
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get("/api/export/wide.csv", async (req, res) => {
+  if (!researcherOnly(req, res)) return;
+  try {
+    res.type("text/csv").attachment("mindfulfinance-wide.csv").send(await exportCsv());
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get("/api/export/feed.csv", async (req, res) => {
+  if (!researcherOnly(req, res)) return;
+  try {
+    res.type("text/csv").attachment("mindfulfinance-feed-trials.csv").send(await exportFeedCsv());
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

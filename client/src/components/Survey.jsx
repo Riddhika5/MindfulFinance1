@@ -1,3 +1,9 @@
+// ⚠️ DEPRECATED — instrument version 1.0 (author-written items).
+// Superseded by lib/instruments.js (version 2.0), where every item is taken or
+// adapted from a published, validated instrument. This file is retained only so
+// that any data already collected with v1.0 can still be interpreted. It is no
+// longer referenced by the UI. Do NOT collect new data with it.
+
 // Survey.jsx — the research questionnaire. People answer it, it's scored and
 // sent to the server, then we show the aggregate analysis across everyone:
 //   - which bias affects people most (self-reported)
