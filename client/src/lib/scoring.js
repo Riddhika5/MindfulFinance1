@@ -7,8 +7,10 @@
 // ===========================================================================
 
 import {
-  SM_USE, SMFI, BIAS_CONSTRUCTS, ALL_BIAS_IDS, MAAS, CFPB, LITERACY, TASKS, SCALES,
+  SM_USE, SMFI, BIAS_CONSTRUCTS, ALL_BIAS_IDS, MAAS, CFPB, FWB, LITERACY, TASKS, SCALES,
+  FIN_MINDFULNESS, STATE_MAAS, IMPULSIVENESS, SELF_CONTROL, MEDITATION,
 } from "./instruments.js";
+import { DESIGN } from "./design.js";
 
 const num = (v) => (v === undefined || v === null || v === "" ? null : Number(v));
 
@@ -115,6 +117,49 @@ export function scoreCFPB(answers, { ageGroup = "18_61", mode = "self", shortFor
 // 'Do not know' is scored as incorrect for the index BUT retained separately,
 // because DK rates are substantively informative (and gendered).
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Financial well-being — Netemeyer et al. (2018), one 5-point agreement scale.
+// The five Current Money Management Stress items are negatively worded and are
+// REVERSE-CODED, so a high score always means better well-being. That matches
+// the direction of the CFPB score it replaces, which keeps every downstream
+// hypothesis sign identical.
+// ---------------------------------------------------------------------------
+export function scoreFWB(answers) {
+  const per = {};
+  const vals = [];
+  const bySub = { stress: [], security: [] };
+
+  for (const item of FWB.items) {
+    const raw = answers[item.id];
+    if (raw === null || raw === undefined) { per[item.id] = null; continue; }
+    // 1–5 agreement; reverse so higher = better well-being.
+    const v = item.reverse ? 6 - Number(raw) : Number(raw);
+    per[item.id] = v;
+    vals.push(v);
+    bySub[item.sub].push(v);
+  }
+
+  const mean = (arr) => (arr.length ? arr.reduce((x, y) => x + y, 0) / arr.length : null);
+  const score = mean(vals);
+
+  return {
+    instrument: "Netemeyer et al. (2018) Perceived Financial Well-Being Scale",
+    score: score === null ? null : Number(score.toFixed(3)),
+    // 0–100 for the participant-facing report only. NOT comparable to the
+    // CFPB 0–100 standardised score, which comes from an IRT calibration.
+    pomp: score === null ? null : Math.round(((score - 1) / 4) * 100),
+    answered: vals.length,
+    total: FWB.items.length,
+    subscales: {
+      stress: bySub.stress.length ? Number(mean(bySub.stress).toFixed(3)) : null,
+      security: bySub.security.length ? Number(mean(bySub.security).toFixed(3)) : null,
+    },
+    perItem: per,
+    range: [1, 5],
+    note: "Higher = better financial well-being. Stress items reverse-coded.",
+  };
+}
+
 export function scoreLiteracy(answers) {
   let correct = 0;
   let dk = 0;
@@ -130,13 +175,21 @@ export function scoreLiteracy(answers) {
   const big3 = LITERACY.items.filter((i) => i.core === "big3");
   const big3Correct = big3.filter((i) => answers[i.id] === i.correct).length;
 
+  // The knowledge section is skippable. A skipped quiz is NOT a score of zero
+  // and must never be analysed as one — it is missing data with a known
+  // reason, which is a different thing and is flagged as such.
+  const answered = LITERACY.items.filter((i) => answers[i.id] !== null && answers[i.id] !== undefined).length;
+  const skipped = answers.literacy_skipped === true || answered === 0;
+
   return {
-    correct,
+    skipped,
+    answered,
+    correct: skipped ? null : correct,
     total: LITERACY.items.length,
-    pct: Math.round((correct / LITERACY.items.length) * 100),
-    big3Correct,
+    pct: skipped ? null : Math.round((correct / LITERACY.items.length) * 100),
+    big3Correct: skipped ? null : big3Correct,
     big3Total: big3.length,
-    dkCount: dk,
+    dkCount: skipped ? null : dk,
     perItem,
     range: [0, LITERACY.items.length],
   };
@@ -284,6 +337,70 @@ export function scoreFeed(trials = []) {
 }
 
 // ---------------------------------------------------------------------------
+// Generic reflective-scale scorer: mean, with reverse-keyed items flipped.
+// ---------------------------------------------------------------------------
+function scoreReflective(block, answers, { points = 5 } = {}) {
+  const vals = block.items.map((i) => {
+    const v = num(answers[i.id]);
+    if (v === null) return null;
+    return i.reverse ? points + 1 - v : v;
+  });
+  return {
+    score: meanOf(vals),
+    n: block.items.length,
+    completeness: completeness(block.items, answers),
+    range: [1, points],
+  };
+}
+
+/** Financial mindfulness — awareness and acceptance, plus the total. */
+export function scoreFinMindfulness(answers) {
+  const total = scoreReflective(FIN_MINDFULNESS, answers);
+  const bySub = {};
+  for (const sub of Object.keys(FIN_MINDFULNESS.subscales)) {
+    const items = FIN_MINDFULNESS.items.filter((i) => i.sub === sub);
+    bySub[sub] = meanOf(items.map((i) => {
+      const v = num(answers[i.id]);
+      return v === null ? null : i.reverse ? 6 - v : v;
+    }));
+  }
+  return { ...total, subscales: bySub };
+}
+
+/**
+ * State MAAS — the manipulation check.
+ * Stored 1–7 by the UI; converted to the published 0–6 metric and reverse
+ * scored, because unlike the trait MAAS these anchors do NOT invert the items.
+ */
+export function scoreStateMindfulness(answers) {
+  const vals = STATE_MAAS.items.map((i) => {
+    const v = num(answers[i.id]);
+    return v === null ? null : 6 - (v - 1); // 1..7 -> 0..6, then reversed
+  });
+  return {
+    score: meanOf(vals),
+    range: [0, 6],
+    n: STATE_MAAS.items.length,
+    completeness: completeness(STATE_MAAS.items, answers),
+    interpretation: "Higher = more present and attentive during the feed.",
+  };
+}
+
+export const scoreImpulsiveness = (a) => scoreReflective(IMPULSIVENESS, a);
+export const scoreSelfControl = (a) => scoreReflective(SELF_CONTROL, a);
+
+/** Meditation practice — a binary covariate plus the raw responses. */
+export function scoreMeditation(answers) {
+  const ever = answers.med_ever;
+  return {
+    isMeditator: ever === "Yes, currently" || ever === "Yes, in the past" ? 1 : 0,
+    currentlyPractising: ever === "Yes, currently" ? 1 : 0,
+    raw: MEDITATION.items.reduce((o, i) => ({ ...o, [i.id]: answers[i.id] ?? null }), {}),
+    note: "Author-constructed practice history, not a validated scale (cf. Van Dam et al., 2024).",
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Subjective–objective knowledge calibration
 // ---------------------------------------------------------------------------
 /**
@@ -319,7 +436,17 @@ export function scoreAll(session) {
   const a = session.answers || {};
   const biases = scoreBiases(a);
   const maas = scoreMAAS(a);
-  const cfpb = scoreCFPB(a, { ageGroup: session.ageGroup || "18_61", mode: "self" });
+  // Both instruments may be administered. Each keeps its own scoring, and
+  // `wellbeing` points at whichever is the PRIMARY outcome for this build.
+  const useCfpb = DESIGN.wellbeingScale === "cfpb" || DESIGN.wellbeingScale === "both";
+  const useNet = DESIGN.wellbeingScale === "netemeyer" || DESIGN.wellbeingScale === "both";
+  const cfpbScore = useCfpb
+    ? scoreCFPB(a, { ageGroup: session.ageGroup || "18_61", mode: "self" })
+    : null;
+  const netScore = useNet ? scoreFWB(a) : null;
+  // When both are present the CFPB score is the primary outcome: it is the
+  // normed, published instrument. Netemeyer supplies the present/future split.
+  const fwb = cfpbScore || netScore;
   const literacy = scoreLiteracy(a);
   const smfi = scoreSMFI(a);
   const feed = scoreFeed(session.feedTrials);
@@ -334,10 +461,32 @@ export function scoreAll(session) {
     smUse: SM_USE.items.reduce((o, i) => ({ ...o, [i.id]: a[i.id] ?? null }), {}),
     smfi,
     biases,
-    maas,
-    cfpb,
+    maas: DESIGN.traitMindfulness ? maas : null,
+    // Netemeyer form (present/future split, agreement metric).
+    fwb: netScore,
+    // CFPB form (published anchors, IRT-scorable). Primary when present.
+    cfpb: cfpbScore || netScore,
+    wellbeingInstrument: DESIGN.wellbeingScale,
+    // Order the two well-being blocks were shown in, for the order covariate.
+    wellbeingOrder: a.fwb_order || null,
+    // Convergent validity, computed per participant so it can be checked
+    // without re-deriving anything: both instruments rescaled to 0–100.
+    wellbeingConvergence:
+      cfpbScore && netScore && cfpbScore.provisional !== null && netScore.pomp !== null
+        ? { cfpb0100: cfpbScore.provisional, netemeyer0100: netScore.pomp,
+            gap: cfpbScore.provisional - netScore.pomp }
+        : null,
     literacy,
     feed,
+    // Mindfulness, measured three ways: general trait, financial domain, and
+    // state during the feed. The thesis lives or dies on the distinction.
+    finMindfulness: DESIGN.finMindfulness ? scoreFinMindfulness(a) : null,
+    stateMindfulness: DESIGN.stateMindfulness ? scoreStateMindfulness(a) : null,
+    // The behavioural link between bias and well-being.
+    impulsiveness: DESIGN.impulsiveness ? scoreImpulsiveness(a) : null,
+    // The covariate that answers "is this just self-control?"
+    selfControl: DESIGN.selfControl ? scoreSelfControl(a) : null,
+    meditation: DESIGN.meditation ? scoreMeditation(a) : null,
     knowledgeCalibration: knowledgeCalibration(biases, literacy),
     lossTask,
     anchorTask: session.anchorTask || null,

@@ -9,7 +9,6 @@
 
 import { useState } from "react";
 import { ETHICS, isConfigured, SUPPORT, needsSupport } from "../lib/ethics.js";
-import { ARMS } from "../lib/scenarios.js";
 
 function Withdraw({ participantId }) {
   const [state, setState] = useState("idle");
@@ -50,7 +49,6 @@ function Withdraw({ participantId }) {
 }
 
 export default function Debrief({ results, session, onBack }) {
-  const arm = ARMS[session?.arm];
   const configured = isConfigured();
   const showSupport = needsSupport(results);
 
@@ -58,30 +56,16 @@ export default function Debrief({ results, session, onBack }) {
     <div className="screen">
       <h2 className="screen-title">📋 About the study you just took part in</h2>
       <p className="screen-note">
-        Now that you have finished, here is the full picture — including one thing we could not tell
-        you beforehand without changing how you responded.
+        Now that you have finished, here is the full picture of what this study is measuring and why.
       </p>
 
       <div className="debrief-sec">
-        <h3>You were placed in one of four groups</h3>
+        <h3>Nothing was hidden from you</h3>
         <p>
-          Participants are randomly assigned to see the social media feed in one of four ways. The
-          assignment is made by the app and is not based on anything about you.
-        </p>
-        <ul className="debrief-list">
-          {Object.values(ARMS).map((a) => (
-            <li key={a.id} className={arm?.id === a.id ? "arm-mine" : ""}>
-              <strong>{a.label}</strong>
-              {arm?.id === a.id && <span className="arm-tag">your group</span>}
-              <br />
-              <span className="small muted">{a.description}</span>
-            </li>
-          ))}
-        </ul>
-        <p>
-          We compare behaviour across the four groups to find out whether any of these approaches
-          actually helps people pause before acting on financial content. That question cannot be
-          answered by asking people directly, which is why the grouping was not mentioned earlier.
+          Everyone taking part sees the same questions and the same feed. There is no hidden
+          condition, no secret grouping, and nothing about the study was misrepresented on the
+          consent page. Earlier versions of this study randomly showed some people an extra warning
+          banner on the feed; that was removed, so what you saw is simply the feed as designed.
         </p>
       </div>
 

@@ -10,17 +10,25 @@
 // is the single home afterwards.
 // ===========================================================================
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Landing from "./components/Landing.jsx";
 import Assessment from "./components/Assessment.jsx";
 import Hub from "./components/Hub.jsx";
 import { load, save } from "./lib/storage.js";
+import { flushPendingSubmission } from "./lib/pendingSubmission.js";
 
 export default function App() {
   // A completed assessment is remembered, so returning visitors land in the hub.
   const [completed, setCompleted] = useState(() => !!load("mf_completed", false));
   const [session, setSession] = useState(() => load("mf_session", null));
   const [stage, setStage] = useState("landing");
+
+  // If a previous submission failed — a timed-out cold start, a dropped
+  // connection, a closed tab — send it now. Runs on every app load, before
+  // the participant does anything, and is silent either way: they are not the
+  // person who can fix a server problem, and being told about one they have
+  // already moved past would only worry them.
+  useEffect(() => { flushPendingSubmission(); }, []);
 
   function handleComplete(finishedSession) {
     setSession(finishedSession);

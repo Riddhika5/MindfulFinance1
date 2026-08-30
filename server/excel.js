@@ -19,8 +19,10 @@
 import ExcelJS from "exceljs";
 import { readAllResponses } from "./responses.js";
 import {
-  SOURCES, SM_USE, SMFI, BIAS_CONSTRUCTS, ALL_BIAS_IDS, MAAS, CFPB, LITERACY, SCALES,
+  SOURCES, SM_USE, SMI, SMFI_CRITERION, OPEN_ENDED, BIAS_CONSTRUCTS, ALL_BIAS_IDS, MAAS, CFPB, FWB, LITERACY, SCALES,
+  FIN_MINDFULNESS, STATE_MAAS, IMPULSIVENESS, SELF_CONTROL, MEDITATION,
 } from "../client/src/lib/instruments.js";
+import { DESIGN } from "../client/src/lib/design.js";
 import { PROFILE, ELIGIBILITY } from "../client/src/lib/flow.js";
 
 const HEAD = { bold: true, color: { argb: "FFFFFFFF" }, size: 11 };
@@ -82,13 +84,23 @@ function buildVariables() {
           values: it.options.join(" / "), source: SOURCES[it.src]?.citation || "" });
   }
 
-  // SMFI items
-  SMFI.items.forEach((it, n) => {
-    add({ name: `SMFI${n + 1}`, itemId: it.id, label: it.q, type: "number",
-          construct: "Social Media Financial Influence", subscale: it.sub,
+  // Social media influence (SUSIS-anchored)
+  SMI.items.forEach((it, n) => {
+    add({ name: `SMI${n + 1}`, itemId: it.id, label: it.q, type: "number",
+          construct: "Social media influence (SUSIS)", subscale: it.sub,
           range: "1–5", values: SCALES.agree5.labels.map((l, i) => `${i + 1}=${l}`).join("; "),
+          note: it.adapt === "adapted"
+            ? "SUSIS SOCIAL_PERCEPTION item, re-anchored from influencers-in-general to finance creators"
+            : "Extension item — not part of published SUSIS",
           source: SOURCES[it.src]?.citation || "" });
   });
+
+  // SMI criterion item — NOT part of the SMI mean. Kept adjacent to the SMI
+  // block in the codebook so the validity test is obvious to a reader.
+  add({ name: spssName(SMFI_CRITERION.id), label: SMFI_CRITERION.q, type: "string",
+        construct: "SMI criterion (not scored)",
+        values: SMFI_CRITERION.options.map((o, i) => `${i}=${o}`).join("; "),
+        source: SOURCES[SMFI_CRITERION.src]?.citation || "" });
 
   // bias items
   for (const key of ALL_BIAS_IDS) {
@@ -102,8 +114,31 @@ function buildVariables() {
     });
   }
 
+  // Optional blocks. Only the ones actually administered are given codebook
+  // entries — a codebook listing variables that were never asked is worse than
+  // useless, because it makes an examiner think data are missing.
+  const EXTRA = [
+    [FIN_MINDFULNESS, "FMI", "Financial mindfulness", "agree5", "1–5", DESIGN.finMindfulness],
+    [STATE_MAAS, "SMS", "State mindfulness (post-feed)", "state7", "1–7 stored; scored 0–6 reversed", DESIGN.stateMindfulness],
+    [IMPULSIVENESS, "BIS", "Buying impulsiveness", "agree5", "1–5", DESIGN.impulsiveness],
+    [SELF_CONTROL, "SCS", "Trait self-control (covariate)", "agree5", "1–5", DESIGN.selfControl],
+  ].filter((row) => row[5]);
+  for (const [block, code, label, scaleKey, range] of EXTRA) {
+    block.items.forEach((it, n) => {
+      add({ name: `${code}${n + 1}`, itemId: it.id, label: it.q, type: "number",
+            construct: label, subscale: it.sub || "", range,
+            values: SCALES[scaleKey].labels.filter(Boolean).map((l, i) => `${i + 1}=${l}`).join("; "),
+            note: it.reverse ? "REVERSE-KEYED — already reversed in the derived score" : "",
+            source: SOURCES[block.src]?.citation || "" });
+    });
+  }
+  if (DESIGN.meditation) MEDITATION.items.forEach((it) => {
+    add({ name: spssName(it.id), label: it.q, type: "string", construct: "Meditation practice",
+          values: it.options.join(" / "), source: SOURCES.vanDam2024.citation });
+  });
+
   // MAAS
-  MAAS.items.forEach((it, n) => {
+  if (DESIGN.traitMindfulness) MAAS.items.forEach((it, n) => {
     add({ name: `MAAS${n + 1}`, itemId: it.id, label: it.q, type: "number",
           construct: "Mindfulness (MAAS-15)", range: "1–6",
           values: SCALES.maas6.labels.map((l, i) => `${i + 1}=${l}`).join("; "),
@@ -111,14 +146,29 @@ function buildVariables() {
           source: SOURCES.brownRyan2003.citation });
   });
 
-  // CFPB — stored as the scored response VALUE, not the option index
-  CFPB.items.forEach((it, n) => {
-    add({ name: `FWB${n + 1}`, itemId: it.id, label: it.q, type: "number",
-          construct: "Financial well-being (CFPB-10)", range: "0–4",
-          values: SCALES[it.scale].labels.map((l, i) => `${SCALES[it.scale].values[i]}=${l}`).join("; "),
-          note: "Already converted to CFPB scored values (not the option index)",
-          source: SOURCES.cfpb2015.citation });
-  });
+  // Financial well-being — one or both instruments.
+  if (DESIGN.wellbeingScale === "cfpb" || DESIGN.wellbeingScale === "both") {
+    // Stored as the scored response VALUE, not the option index.
+    CFPB.items.forEach((it, n) => {
+      add({ name: `CFPB${n + 1}`, itemId: it.id, label: it.q, type: "number",
+            construct: "Financial well-being (CFPB-10)", range: "0–4",
+            values: SCALES[it.scale].labels.map((l, i) => `${SCALES[it.scale].values[i]}=${l}`).join("; "),
+            note: "Already converted to CFPB scored values (not the option index). Column name CFPB1–CFPB10.",
+            source: SOURCES.cfpb2015.citation });
+    });
+  }
+  if (DESIGN.wellbeingScale === "netemeyer" || DESIGN.wellbeingScale === "both") {
+    FWB.items.forEach((it, n) => {
+      add({ name: `FWB${n + 1}`, itemId: it.id, label: it.q, type: "number",
+            construct: "Financial well-being (Netemeyer et al., 2018)",
+            subscale: it.sub, range: "1–5",
+            values: SCALES.agree5.labels.map((l, i) => `${i + 1}=${l}`).join("; "),
+            note: it.reverse
+              ? "REVERSE-KEYED — raw value stored as answered; already reversed in FWB_mean"
+              : "",
+            source: SOURCES.netemeyer2018.citation });
+    });
+  }
 
   // literacy — three columns per item
   LITERACY.items.forEach((it, n) => {
@@ -132,20 +182,55 @@ function buildVariables() {
           note: "DK rates are substantively informative — keep separate from incorrect" });
   });
 
+  // Open-ended probe — free text, for thematic coding rather than scoring.
+  OPEN_ENDED.items.forEach((it) => {
+    add({ name: spssName(it.id), itemId: it.id, label: it.q, type: "string",
+          construct: "Open-ended (qualitative)",
+          note: "OPTIONAL free text. Not scored. Analyse by inductive thematic coding. ⚠️ SCREEN FOR IDENTIFYING DETAIL before sharing or archiving this dataset — participants can name themselves or others in free text.",
+          source: OPEN_ENDED.sourceLine });
+  });
+
   // derived scores
   const SCORES = [
-    ["SMFI_mean", "Social Media Financial Influence, mean", "1–5"],
-    ["SMFI_engage", "SMFI — engagement subscale", "1–5"],
-    ["SMFI_credib", "SMFI — credibility subscale", "1–5"],
-    ["SMFI_adopt", "SMFI — adoption subscale", "1–5"],
+    ["SMI_mean", "Social media influence, mean (SUSIS-anchored)", "1–5"],
+    ["SMI_percep", "SMI — perception towards influencers (SUSIS C1)", "1–5"],
+    ["SMI_parasoc", "SMI — parasocial relationship (SUSIS C3)", "1–5"],
+    ["SMI_trust", "SMI — consumer trust (SUSIS C4)", "1–5"],
+    ["SMI_adopt", "SMI — financial information adoption (extension)", "1–5"],
     ...ALL_BIAS_IDS.map((k) => [`${BIAS_CONSTRUCTS[k].code}_mean`, `${BIAS_CONSTRUCTS[k].name}, subscale mean`, "1–5"]),
     ["BiasIndex", "Composite behavioural bias index (POMP)", "0–100"],
     ["BiasCognitive", "Cognitive biases (POMP mean)", "0–100"],
     ["BiasEmotional", "Emotional biases (POMP mean)", "0–100"],
-    ["MAAS_mean", "Dispositional mindfulness, mean (no reverse coding)", "1–6"],
-    ["CFPB_raw", "CFPB raw total — USE THIS for analysis", "0–40"],
-    ["CFPB_std", "CFPB standardised score (blank unless the official IRT table is loaded)", "0–100"],
-    ["LIT_correct", "Financial literacy, number correct", "0–5"],
+    ...(DESIGN.traitMindfulness ? [["MAAS_mean", "Dispositional mindfulness, mean (no reverse coding)", "1–6"]] : []),
+    ...(DESIGN.finMindfulness ? [
+      ["FMI_mean", "Financial mindfulness, total mean", "1–5"],
+      ["FMI_aware", "Financial mindfulness — awareness subscale", "1–5"],
+      ["FMI_accept", "Financial mindfulness — acceptance subscale", "1–5"],
+    ] : []),
+    ...(DESIGN.stateMindfulness ? [["SMS_state", "State mindfulness during the feed (reversed, 0–6)", "0–6"]] : []),
+    ...(DESIGN.impulsiveness ? [["BIS_mean", "Buying impulsiveness, mean", "1–5"]] : []),
+    ...(DESIGN.selfControl ? [["SCS_mean", "Trait self-control, mean (covariate)", "1–5"]] : []),
+    ...(DESIGN.meditation ? [
+      ["Meditator", "Has ever practised meditation regularly", "0/1"],
+      ["MeditatesNow", "Currently practising", "0/1"],
+    ] : []),
+    ...(DESIGN.wellbeingScale !== "netemeyer" ? [
+      ["CFPB_raw", "CFPB raw total — PRIMARY well-being outcome. Published, normed instrument", "0–40"],
+      ["CFPB_std", "CFPB standardised score (blank unless the official IRT table is loaded into scoring.js)", "0–100"],
+      ["CFPB_prov", "Provisional linear 0–100 rescaling of CFPB_raw. DISPLAY ONLY — never analyse this", "0–100"],
+    ] : []),
+    ...(DESIGN.wellbeingScale !== "cfpb" ? [
+      ["FWB_mean", "Netemeyer well-being, mean. Stress items reverse-coded, so HIGH = BETTER", "1–5"],
+      ["FWB_stress", "Current money management stress subscale (reverse-coded) = CFPB PRESENT row", "1–5"],
+      ["FWB_security", "Expected future financial security subscale = CFPB FUTURE row", "1–5"],
+      ["FWB_pomp", "Netemeyer well-being rescaled 0–100. NOT comparable to a CFPB standardised score", "0–100"],
+    ] : []),
+    ...(DESIGN.wellbeingScale === "both" ? [
+      ["FWB_order", "Which well-being block was shown first (counterbalanced). Enter as a covariate", "text"],
+      ["FWB_convGap", "CFPB_prov minus FWB_pomp, both 0–100. Convergence check only", "−100–100"],
+    ] : []),
+    ["LIT_correct", "Financial literacy, number correct. BLANK if the participant skipped the section — do NOT recode blanks to 0", "0–5"],
+    ["LIT_skipped", "Participant skipped the optional knowledge section", "0/1"],
     ["LIT_DKcount", "Number of 'do not know' responses", "0–5"],
     ["KnowGap", "Illusion of knowledge: IOK POMP minus literacy % (positive = overestimates)", "−100–100"],
     ["KnowSubjective", "Subjective knowledge (IOK POMP)", "0–100"],
@@ -165,6 +250,7 @@ function buildVariables() {
     ["Q_flagFast", "Too-fast flag (< 2 s per item)", "0/1"],
     ["Q_flagLowVar", "Low-variance flag (SD < 0.40)", "0/1"],
     ["Q_excludeAny", "Any quality flag raised", "0/1"],
+    ["OverQuota", "Non-blank if the recruitment cell filled while this participant was answering. Exclude these from the primary quota-balanced sample.", "text"],
   ];
   QUALITY.forEach(([name, label, range]) =>
     add({ name, label, type: "number", construct: "DATA QUALITY", range,
@@ -187,18 +273,36 @@ function valueFor(v, r) {
     case "SubmittedAt": return r.submittedAt || "";
     case "DurationMin": return r.durationMs ? Number((r.durationMs / 60000).toFixed(2)) : null;
 
-    case "SMFI_mean": return s.smfi ?? null;
-    case "SMFI_engage": return s.smfiEngagement ?? null;
-    case "SMFI_credib": return s.smfiCredibility ?? null;
-    case "SMFI_adopt": return s.smfiAdoption ?? null;
+    case "SMI_mean": return s.smi ?? s.smfi ?? null;
+    case "SMI_percep": return s.smiPerception ?? null;
+    case "SMI_parasoc": return s.smiParasocial ?? null;
+    case "SMI_trust": return s.smiTrust ?? null;
+    case "SMI_adopt": return s.smiAdoption ?? null;
     case "BiasIndex": return s.biasIndex ?? null;
     case "BiasCognitive": return s.biasCognitive ?? null;
     case "BiasEmotional": return s.biasEmotional ?? null;
     case "MAAS_mean": return s.maas ?? null;
+    case "FMI_mean": return s.finMindfulness ?? null;
+    case "FMI_aware": return s.finMindfulnessAwareness ?? null;
+    case "FMI_accept": return s.finMindfulnessAcceptance ?? null;
+    case "SMS_state": return s.stateMindfulness ?? null;
+    case "BIS_mean": return s.impulsiveness ?? null;
+    case "SCS_mean": return s.selfControl ?? null;
+    case "Meditator": return s.meditator ?? null;
+    case "MeditatesNow": return s.meditatesNow ?? null;
     case "CFPB_raw": return s.cfpbRaw ?? null;
     case "CFPB_std": return s.cfpbStandardised ?? null;
+    case "CFPB_prov": return s.cfpbProvisional ?? null;
+    case "FWB_order": return a.fwb_order || "";
+    case "FWB_convGap": return s.wellbeingGap ?? null;
+    case "FWB_mean": return s.fwb ?? null;
+    case "FWB_stress": return s.fwbStress ?? null;
+    case "FWB_security": return s.fwbSecurity ?? null;
+    case "FWB_pomp": return s.fwbPomp ?? null;
     case "LIT_correct": return s.literacyCorrect ?? null;
+    case "LIT_skipped": return s.literacySkipped ? 1 : 0;
     case "LIT_DKcount": return s.literacyDK ?? null;
+    case "OverQuota": return Array.isArray(r.overQuota) ? r.overQuota.join("|") : "";
     case "KnowGap": return s.knowledgeGap ?? null;
     case "KnowSubjective": return s.knowledgeSubjective ?? null;
     case "FeedActionRate": return s.feedActionRate ?? null;
@@ -229,12 +333,19 @@ function valueFor(v, r) {
     return String(ans).toLowerCase().startsWith("do not know") ? 1 : 0;
   }
 
-  // CFPB — convert the stored option index to the CFPB scored value
-  if (/^FWB\d+$/.test(v.name) && v.itemId) {
+  // Well-being items. Under the CFPB form the UI stores an option INDEX that
+  // has to be mapped through the scale's value table; under the Netemeyer form
+  // the UI already stores 1–5, so it passes straight through.
+  if (/^CFPB\d+$/.test(v.name) && v.itemId) {
     const idx = a[v.itemId];
     if (idx === undefined || idx === null || idx === "") return null;
     const item = CFPB.items.find((i) => i.id === v.itemId);
-    return SCALES[item.scale].values[Number(idx)] ?? null;
+    return item ? (SCALES[item.scale].values[Number(idx)] ?? null) : Number(idx);
+  }
+  // Netemeyer items are stored as 1–5 already.
+  if (/^FWB\d+$/.test(v.name) && v.itemId) {
+    const raw = a[v.itemId];
+    return raw === undefined || raw === null || raw === "" ? null : Number(raw);
   }
 
   // plain item responses
@@ -298,10 +409,10 @@ export async function buildWorkbook() {
     { header: "Used by", key: "used", width: 46 },
   ];
   const usedBy = {
-    agree5: "All SMFI and behavioural bias items",
+    agree5: "All SMI, behavioural bias and financial well-being items",
     maas6: "MAAS1–MAAS15",
-    cfpbDescribes: "FWB1–FWB6",
-    cfpbOften: "FWB7–FWB10",
+    cfpbDescribes: "FWB1–FWB6 (CFPB form only)",
+    cfpbOften: "FWB7–FWB10 (CFPB form only)",
   };
   for (const [key, sc] of Object.entries(SCALES)) {
     if (!usedBy[key]) continue;
@@ -370,7 +481,10 @@ export async function buildWorkbook() {
     ["Sheet: Scores", "Derived construct scores only."],
     ["Sheet: FeedTrials", "Long format — one row per feed trial, for multilevel models."],
     ["", ""],
-    ["IMPORTANT — CFPB", "Use CFPB_raw for analysis. CFPB_std is blank unless the official IRT lookup table has been loaded into scoring.js."],
+    ["IMPORTANT — Well-being", "FWB_mean is the outcome variable (Netemeyer et al., 2018; 1–5 agreement). The five stress items are ALREADY reverse-coded in FWB_mean, so high = better well-being. The FWB1–FWB5 item columns hold the RAW answer as given — reverse them yourself if you re-derive the mean."],
+    ["IMPORTANT — Not CFPB", "This dataset does NOT contain CFPB scores. The CFPB scale was replaced so the whole instrument shares one agreement metric; CFPB's published 0–100 score depends on its own anchors and IRT calibration and cannot be reproduced from agreement responses."],
+    ["IMPORTANT — Literacy skips", "The knowledge section is optional. LIT_skipped = 1 means the participant chose not to answer. LIT_correct is BLANK for those cases. Do not recode blank to 0 — that would score a non-response as total ignorance."],
+    ["IMPORTANT — Quotas", "Sampling is quota-controlled: 300 male / 300 female; age 105/145/120/95/75/60; location 180/210/120/90; 600 total. Rows with a non-blank OverQuota arrived after their cell filled."],
     ["IMPORTANT — MAAS", "Already scored correctly. Do NOT reverse-code: the anchors invert the items."],
     ["IMPORTANT — Literacy", "Formative index. Report % correct and DK rate, not Cronbach's alpha."],
     ["IMPORTANT — Exclusions", "Q_excludeAny marks pre-specified quality flags. Report results with and without flagged cases."],

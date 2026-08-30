@@ -82,9 +82,11 @@ export function buildReportHtml(results, session, insights) {
 <div class="tiles">
   <div class="tile"><div class="v">${r2(results.smfi.score) ?? "—"}</div><div class="l">Social media influence<br>of 5</div></div>
   <div class="tile"><div class="v">${r2(results.biases.index) ?? "—"}</div><div class="l">Behavioural bias index<br>of 100</div></div>
-  <div class="tile"><div class="v">${r2(results.maas.score) ?? "—"}</div><div class="l">Mindfulness (MAAS)<br>of 6</div></div>
-  <div class="tile"><div class="v">${results.cfpb.raw}</div><div class="l">Financial well-being<br>of ${results.cfpb.max}</div></div>
-  <div class="tile"><div class="v">${results.literacy.correct}/${results.literacy.total}</div><div class="l">Financial literacy</div></div>
+  ${results.maas?.score != null
+    ? `<div class="tile"><div class="v">${r2(results.maas.score)}</div><div class="l">Mindfulness (MAAS)<br>of 6</div></div>`
+    : ""}
+  <div class="tile"><div class="v">${results.fwb?.score != null ? r2(results.fwb.score) : results.cfpb?.raw ?? "—"}</div><div class="l">Financial well-being<br>of ${results.fwb?.score != null ? 5 : results.cfpb?.max ?? "—"}</div></div>
+  <div class="tile"><div class="v">${results.literacy?.skipped ? "—" : `${results.literacy.correct}/${results.literacy.total}`}</div><div class="l">Financial literacy${results.literacy?.skipped ? "<br>(skipped)" : ""}</div></div>
 </div>
 
 <h2>Behavioural bias profile</h2>

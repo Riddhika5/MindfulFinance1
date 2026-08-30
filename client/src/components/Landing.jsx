@@ -8,7 +8,7 @@ const FEATURES = [
   {
     emoji: "🧪",
     title: "Every question from a validated scale",
-    text: "MAAS, the CFPB Financial Well-Being Scale, the Lusardi–Mitchell literacy questions, and published behavioural-bias instruments. Nothing here was made up for the occasion.",
+    text: "The Netemeyer et al. (2018) financial well-being scale, the Lusardi–Mitchell literacy questions, and published behavioural-bias instruments. Nothing here was made up for the occasion.",
   },
   {
     emoji: "📱",

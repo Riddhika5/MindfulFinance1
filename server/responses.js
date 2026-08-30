@@ -15,17 +15,78 @@ const DATA_DIR = path.join(__dirname, "data");
 const FILE = path.join(DATA_DIR, "responses.json");
 const USE_DB = !!process.env.MONGODB_URI;
 
-let _dbPromise = null;
-async function getDb() {
-  if (!_dbPromise) {
-    _dbPromise = (async () => {
-      const { MongoClient } = await import("mongodb");
-      const client = new MongoClient(process.env.MONGODB_URI);
-      await client.connect();
-      return client.db(process.env.MONGODB_DB || "mindfulmoney");
-    })();
+/** Thrown when the datastore is unreachable — distinct from a bad payload. */
+export class StorageError extends Error {
+  constructor(message, cause) {
+    super(message);
+    this.name = "StorageError";
+    this.cause = cause;
   }
-  return _dbPromise;
+}
+
+let _dbPromise = null;
+
+/**
+ * Connect lazily, and — critically — DO NOT CACHE A REJECTED PROMISE.
+ *
+ * The previous version assigned the promise before it settled, so a single
+ * failed connection (a cold start racing DNS, a brief Atlas blip, an IP not
+ * yet allowlisted) poisoned the cache: every later request awaited the same
+ * rejected promise and failed identically until the service was redeployed.
+ * That turns a transient two-second outage into a dead study, and the only
+ * symptom a participant sees is an error on the submit button.
+ *
+ * serverSelectionTimeoutMS is set low deliberately. The default is 30s, which
+ * means a participant sits on a spinner for half a minute before being told
+ * something went wrong; 8s fails fast enough to retry within one page view.
+ */
+async function getDb() {
+  if (_dbPromise) return _dbPromise;
+  const attempt = (async () => {
+    const { MongoClient } = await import("mongodb");
+    const client = new MongoClient(process.env.MONGODB_URI, {
+      serverSelectionTimeoutMS: 8000,
+      connectTimeoutMS: 8000,
+      retryWrites: true,
+    });
+    await client.connect();
+    const db = client.db(process.env.MONGODB_DB || "mindfulmoney");
+    // connect() can resolve before the server is actually reachable, so ping.
+    await db.command({ ping: 1 });
+    return db;
+  })();
+  _dbPromise = attempt;
+  try {
+    return await attempt;
+  } catch (err) {
+    _dbPromise = null; // let the next request try again
+    throw new StorageError(
+      `Could not reach MongoDB: ${err?.message || err}. Check MONGODB_URI, the database user's password, and that Network Access allows 0.0.0.0/0.`,
+      err
+    );
+  }
+}
+
+/** Is the datastore actually reachable? Used by /api/readiness. */
+export async function checkStorage() {
+  if (!USE_DB) {
+    return {
+      mode: "ephemeral-file",
+      ok: true,
+      warning:
+        "MONGODB_URI is not set. Responses are written to the container filesystem, which Render wipes on every redeploy, restart and free-tier sleep. Data WILL be lost.",
+    };
+  }
+  try {
+    await getDb();
+    return { mode: "mongodb", ok: true, warning: null };
+  } catch (err) {
+    return {
+      mode: "mongodb",
+      ok: false,
+      warning: `MONGODB_URI is set but the database is UNREACHABLE. ${err.message} Responses are being written to the container filesystem as a fallback and will be lost on the next restart.`,
+    };
+  }
 }
 
 function ensure() {
@@ -42,15 +103,34 @@ function readLocal() {
   }
 }
 
+/**
+ * Every stored response. When Mongo is in use, the local file is ALSO read and
+ * merged: anything written there is a fallback from a period when the database
+ * was unreachable, and silently omitting it from the export would lose exactly
+ * the responses that were hardest to collect. Duplicates are resolved in favour
+ * of the database copy.
+ */
 export async function readAllResponses() {
-  if (USE_DB) {
+  if (!USE_DB) return readLocal();
+
+  let fromDb = [];
+  try {
     const db = await getDb();
-    return db.collection("responses").find({}, { projection: { _id: 0 } }).toArray();
+    fromDb = await db.collection("responses").find({}, { projection: { _id: 0 } }).toArray();
+  } catch (err) {
+    console.error("[responses] MongoDB read failed, serving file copy only:", err.message);
+    return readLocal();
   }
-  return readLocal();
+
+  const fallback = readLocal();
+  if (!fallback.length) return fromDb;
+
+  const key = (r) => `${r.participantId}|${r.wave}`;
+  const seen = new Set(fromDb.map(key));
+  return fromDb.concat(fallback.filter((r) => !seen.has(key(r))));
 }
 
-export async function addResponse({ raw, scored }) {
+export async function addResponse({ raw, scored, overQuota = null }) {
   if (!raw || !scored) throw new Error("raw and scored payloads are both required");
 
   const record = {
@@ -72,10 +152,13 @@ export async function addResponse({ raw, scored }) {
 
     // --- derived scores (convenience; always re-derivable from answers) ----
     scores: {
+      smi: scored.smfi?.score ?? null,
+      smiPerception: scored.smfi?.subscales?.perception?.score ?? null,
+      smiParasocial: scored.smfi?.subscales?.parasocial?.score ?? null,
+      smiTrust: scored.smfi?.subscales?.trust?.score ?? null,
+      smiAdoption: scored.smfi?.subscales?.adoption?.score ?? null,
+      // Legacy key kept so older exports and saved waves still line up.
       smfi: scored.smfi?.score ?? null,
-      smfiEngagement: scored.smfi?.subscales?.engagement?.score ?? null,
-      smfiCredibility: scored.smfi?.subscales?.credibility?.score ?? null,
-      smfiAdoption: scored.smfi?.subscales?.adoption?.score ?? null,
       biasIndex: scored.biases?.index ?? null,
       biasCognitive: scored.biases?.cognitive ?? null,
       biasEmotional: scored.biases?.emotional ?? null,
@@ -83,9 +166,27 @@ export async function addResponse({ raw, scored }) {
         Object.entries(scored.biases?.constructs || {}).map(([k, v]) => [k, v.raw])
       ),
       maas: scored.maas?.score ?? null,
+      finMindfulness: scored.finMindfulness?.score ?? null,
+      finMindfulnessAwareness: scored.finMindfulness?.subscales?.awareness ?? null,
+      finMindfulnessAcceptance: scored.finMindfulness?.subscales?.acceptance ?? null,
+      stateMindfulness: scored.stateMindfulness?.score ?? null,
+      impulsiveness: scored.impulsiveness?.score ?? null,
+      selfControl: scored.selfControl?.score ?? null,
+      meditator: scored.meditation?.isMeditator ?? null,
+      meditatesNow: scored.meditation?.currentlyPractising ?? null,
       cfpbRaw: scored.cfpb?.raw ?? null,
       cfpbStandardised: scored.cfpb?.standardised ?? null,
+      cfpbProvisional: scored.cfpb?.provisional ?? null,
+      wellbeingGap: scored.wellbeingConvergence?.gap ?? null,
+      // Netemeyer form (the default). Reverse coding is already applied, so a
+      // high value means better well-being — same direction as the CFPB score.
+      fwb: scored.fwb?.score ?? null,
+      fwbStress: scored.fwb?.subscales?.stress ?? null,
+      fwbSecurity: scored.fwb?.subscales?.security ?? null,
+      fwbPomp: scored.fwb?.pomp ?? null,
+      wellbeingInstrument: scored.wellbeingInstrument ?? null,
       literacyCorrect: scored.literacy?.correct ?? null,
+      literacySkipped: scored.literacy?.skipped ?? null,
       knowledgeGap: scored.knowledgeCalibration?.gap ?? null,
       knowledgeSubjective: scored.knowledgeCalibration?.subjective ?? null,
       literacyDK: scored.literacy?.dkCount ?? null,
@@ -96,27 +197,60 @@ export async function addResponse({ raw, scored }) {
     // --- data-quality flags for transparent exclusion ----------------------
     quality: scored.quality || {},
 
+    // --- quota control -----------------------------------------------------
+    // null = within quota. An array of dimension names = the cell filled while
+    // this participant was answering. Kept rather than discarded, and excluded
+    // from the primary analysis sample at the cleaning stage.
+    overQuota: Array.isArray(overQuota) ? overQuota : null,
+
     // --- provenance --------------------------------------------------------
-    instrumentVersion: "2.0-validated",
+    instrumentVersion: "3.0-agreement-metric",
   };
 
+  // -------------------------------------------------------------------------
+  // Write it. A participant has just spent ten minutes on this, so a storage
+  // problem must never be the reason their answers disappear.
+  //
+  // If Mongo is configured but unreachable, the response is written to the
+  // container filesystem instead and flagged `storageFallback`. That file is
+  // volatile — Render wipes it on restart — so this is a stay of execution,
+  // not a solution, and both the API response and /api/readiness say so
+  // loudly. But a file that might survive the next hour beats a 400 and a
+  // participant who has already closed the tab.
+  // -------------------------------------------------------------------------
   if (USE_DB) {
-    const db = await getDb();
-    // Upsert on participantId + wave so a double-submit does not duplicate.
-    await db
-      .collection("responses")
-      .updateOne(
-        { participantId: record.participantId, wave: record.wave },
-        { $set: record },
-        { upsert: true }
-      );
-    return record;
+    try {
+      const db = await getDb();
+      // Upsert on participantId + wave so a double-submit does not duplicate.
+      await db
+        .collection("responses")
+        .updateOne(
+          { participantId: record.participantId, wave: record.wave },
+          { $set: record },
+          { upsert: true }
+        );
+      return { ...record, storedIn: "mongodb" };
+    } catch (err) {
+      const reason = err instanceof StorageError ? err.message : String(err?.message || err);
+      console.error("[responses] MongoDB write FAILED, falling back to file:", reason);
+      writeLocal({ ...record, storageFallback: true, storageError: reason });
+      return { ...record, storedIn: "file-fallback", storageWarning: reason };
+    }
   }
 
+  writeLocal(record);
+  return { ...record, storedIn: "file" };
+}
+
+/** Upsert one record into the local JSON file, keyed on participant + wave. */
+function writeLocal(record) {
   const list = readLocal();
-  const i = list.findIndex((r) => r.participantId === record.participantId && r.wave === record.wave);
+  const i = list.findIndex(
+    (r) => r.participantId === record.participantId && r.wave === record.wave
+  );
   if (i >= 0) list[i] = record;
   else list.push(record);
+  ensure();
   fs.writeFileSync(FILE, JSON.stringify(list, null, 2), "utf8");
   return record;
 }

@@ -86,11 +86,47 @@ Watch the deploy log. A successful build ends with `✓ built in …` followed b
 
 Render → your service → **Environment**.
 
+**Infrastructure**
+
 | Key | Value | Why |
 |---|---|---|
 | `MONGODB_URI` | your Atlas connection string | **Without this you will lose every response.** See below. |
 | `MONGODB_DB` | `mindfulfinance` | Optional; defaults to `mindfulmoney` |
-| `RESEARCHER_KEY` | a long random string you invent | New in v2. Unlocks the CSV export. Without it, export is disabled entirely. |
+| `RESEARCHER_KEY` | a long random string you invent | Unlocks the data export. Without it, export is disabled entirely. |
+
+**Research governance — these lift pilot mode**
+
+Until all seven are set, the app shows a pilot-mode banner and refuses to accept
+responses. Setting them here takes effect immediately: no code change, no
+rebuild.
+
+| Key | Example |
+|---|---|
+| `MF_INSTITUTION` | `Department of Commerce, University of X` |
+| `MF_RESEARCHER` | your name |
+| `MF_RESEARCHER_EMAIL` | an address you actually monitor |
+| `MF_SUPERVISOR` | supervisor's name and title |
+| `MF_SUPERVISOR_EMAIL` | optional |
+| `MF_ETHICS_COMMITTEE` | `Institutional Ethics Committee, University of X` |
+| `MF_ETHICS_REF` | your approval reference |
+| `MF_ETHICS_CONTACT` | Member Secretary email — a route for questions about participant rights that does not go through you |
+
+`MF_RETENTION_YEARS` is optional and defaults to 5.
+
+**Do not invent an approval reference to clear the banner.** The guard exists to
+stop data being collected under placeholder consent, and a fabricated reference
+is research misconduct. Get approval first — `node tools/build-ethics-pack.mjs`
+generates the submission documents.
+
+### Check what is still missing
+
+```
+https://YOUR-APP.onrender.com/api/readiness
+```
+
+Lists exactly which variables are unset, and warns if storage is ephemeral or
+the export is disabled. It reports variable *names*, never their values, so it
+is safe to open in a browser.
 
 ### Why MONGODB_URI is not optional
 

@@ -2,47 +2,37 @@
 // FeedSim.jsx — the Simulated Social Media Feed (SSMF), single page
 // ---------------------------------------------------------------------------
 // All posts on one scrollable page, the way a real feed behaves. For each post
-// we record: decision, stated reason, dwell time, whether the "check it"
-// affordance was opened, the assigned social-proof level, and the arm.
+// we record: decision, dwell time, whether the "check it" affordance was
+// opened, the assigned social-proof level, and the arm.
 //
 // Dwell time here is time-to-first-decision measured from when the card scrolls
 // into view, not from page load — one page means several cards are visible at
 // once, so a page-load baseline would be meaningless.
 //
+// SIMPLIFIED (August 2026) at the researcher's instruction:
+//   • the "Why?" reason chips are gone — decision, dwell time and the
+//     verification click remain as the behavioural DVs
+//   • the 10-second mindful-pause delay is gone, with the mindfulness layer
+//   • the prebunking screen that preceded the feed is gone, so the feed is
+//     genuinely one page
+//   • the paid-promotion disclosure banner is gone — nothing in this study is
+//     sponsored, so a banner implying otherwise would have been inaccurate.
+//     That removes the last treatment arm, so the feed is now a behavioural
+//     task inside a survey rather than a randomised experiment.
+//
 // Every post is fictional. See lib/scenarios.js.
 // ===========================================================================
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { buildFeedTrials, DECISIONS, REASON_CODES, PREBUNK_CONTENT } from "../lib/scenarios.js";
+import { buildFeedTrials, DECISIONS } from "../lib/scenarios.js";
+import { OPEN_ENDED } from "../lib/instruments.js";
 
 const fmt = (n) => (n >= 1000 ? `${(n / 1000).toFixed(1).replace(/\.0$/, "")}K` : String(n));
-
-function Prebunk({ onDone }) {
-  return (
-    <div className="screen">
-      <h2 className="screen-title">🛡️ {PREBUNK_CONTENT.title}</h2>
-      <p className="screen-note">Take thirty seconds with these. A short feed follows.</p>
-      <div className="card-grid">
-        {PREBUNK_CONTENT.points.map((p) => (
-          <div className="info-card" key={p.name}>
-            <div className="info-icon">{p.icon}</div>
-            <h3>{p.name}</h3>
-            <p>{p.text}</p>
-          </div>
-        ))}
-      </div>
-      <div className="screen-actions">
-        <button className="btn btn-primary" onClick={onDone}>I'm ready →</button>
-      </div>
-    </div>
-  );
-}
 
 function PostCard({ post, arm, trial, onChange, onSeen }) {
   const ref = useRef(null);
   const seen = useRef(false);
   const [showVerify, setShowVerify] = useState(false);
-  const [pauseLeft, setPauseLeft] = useState(0);
 
   // Start this card's clock when it actually reaches the viewport.
   useEffect(() => {
@@ -58,18 +48,8 @@ function PostCard({ post, arm, trial, onChange, onSeen }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post.id]);
 
-  // Mindful-pause arm: a short hold between choosing and the reason unlocking.
-  useEffect(() => {
-    if (!arm.showPause || !trial?.decision) return undefined;
-    setPauseLeft(arm.pauseSeconds);
-    const t = setInterval(() => setPauseLeft((s) => (s <= 1 ? (clearInterval(t), 0) : s - 1)), 1000);
-    return () => clearInterval(t);
-  }, [trial?.decision, arm]);
-
-  const locked = arm.showPause && trial?.decision && pauseLeft > 0;
-
   return (
-    <article className={"sim-card tone-" + post.tag + (trial?.decision && trial?.reason ? " sim-done" : "")} ref={ref}>
+    <article className={"sim-card tone-" + post.tag + (trial?.decision ? " sim-done" : "")} ref={ref}>
       <header className="sim-head">
         <div className="sim-avatar">{post.avatar}</div>
         <div className="sim-id">
@@ -87,12 +67,6 @@ function PostCard({ post, arm, trial, onChange, onSeen }) {
       </header>
 
       <p className="sim-body">{post.body}</p>
-
-      {arm.showDisclosure && post.tag !== "calm" && (
-        <div className="sim-disclosure">
-          ⚠️ Content like this may be a paid promotion. Returns shown are not guaranteed and you can lose money.
-        </div>
-      )}
 
       <div className="sim-actions">
         <div className="sim-choices">
@@ -124,39 +98,12 @@ function PostCard({ post, arm, trial, onChange, onSeen }) {
           </ul>
         </div>
       )}
-
-      {trial?.decision && (
-        <div className="sim-why">
-          {locked ? (
-            <div className="pause-inline">
-              <span className="pause-ring-sm">{pauseLeft}</span>
-              Take a breath. Notice what you're feeling — curiosity, urgency, doubt.
-            </div>
-          ) : (
-            <>
-              <span className="sim-why-label">Why?</span>
-              <div className="reason-wrap">
-                {Object.entries(REASON_CODES).map(([k, v]) => (
-                  <button
-                    key={k}
-                    className={"mini-chip" + (trial?.reason === k ? " mini-on" : "")}
-                    onClick={() => onChange(post.id, { reason: k })}
-                  >
-                    {v.label}
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-      )}
     </article>
   );
 }
 
-export default function FeedSim({ session, arm, onComplete, onBack }) {
+export default function FeedSim({ session, arm, answers, setAnswer, onComplete, onBack }) {
   const posts = useMemo(() => buildFeedTrials(session.participantId), [session.participantId]);
-  const [showPrebunk, setShowPrebunk] = useState(!!arm.showPrebunk);
   const [trials, setTrials] = useState({});
   const seenAt = useRef({});
 
@@ -176,9 +123,7 @@ export default function FeedSim({ session, arm, onComplete, onBack }) {
     }));
   }
 
-  if (showPrebunk) return <Prebunk onDone={() => setShowPrebunk(false)} />;
-
-  const done = posts.filter((p) => trials[p.id]?.decision && trials[p.id]?.reason).length;
+  const done = posts.filter((p) => trials[p.id]?.decision).length;
   const complete = done === posts.length;
 
   function finish() {
@@ -192,8 +137,6 @@ export default function FeedSim({ session, arm, onComplete, onBack }) {
         likes: p.metrics.likes,
         arm: arm.id,
         decision: t.decision || null,
-        reason: t.reason || null,
-        reasonMaps: REASON_CODES[t.reason]?.maps || null,
         openedVerify: !!t.openedVerify,
         dwellMs: t.dwellMs ?? null,
         order: i,
@@ -205,8 +148,8 @@ export default function FeedSim({ session, arm, onComplete, onBack }) {
     <div className="screen screen-feed">
       <h2 className="screen-title">📰 Your feed</h2>
       <p className="screen-note">
-        Imagine these appeared in your feed today. React the way you actually would — pick what you'd
-        do, then why. Scroll through all {posts.length}.
+        Imagine these appeared in your feed today. React the way you actually would.
+        Scroll through all {posts.length} and pick one action for each.
       </p>
 
       <div className="feed-progress">
@@ -228,6 +171,36 @@ export default function FeedSim({ session, arm, onComplete, onBack }) {
           />
         ))}
       </div>
+
+      {/* Open-ended probe. Optional, and deliberately placed AFTER every
+          closed item so it cannot prime the fixed battery. */}
+      <div className="open-block">
+        <h3 className="open-title">{OPEN_ENDED.icon} {OPEN_ENDED.title}</h3>
+        <p className="open-privacy">{OPEN_ENDED.privacyNote}</p>
+        {OPEN_ENDED.items.map((item) => (
+          <div className="open-field" key={item.id}>
+            <label htmlFor={item.id}>{item.q}</label>
+            {item.hint && <span className="open-hint">{item.hint}</span>}
+            <textarea
+              id={item.id}
+              rows={item.rows}
+              maxLength={item.maxLength}
+              value={answers?.[item.id] || ""}
+              onChange={(e) => setAnswer(item.id, e.target.value)}
+              placeholder="Type here, or leave blank"
+            />
+            <span className="open-count">
+              {(answers?.[item.id] || "").length} / {item.maxLength}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <p className="page-source">
+        Feed paradigm adapted from the Ontario Securities Commission &amp; The Decision Lab (2024),
+        <em> Social media and retail investing: The rise of finfluencers</em>. All posts, handles and
+        funds shown are fictional.
+      </p>
 
       <div className="screen-actions">
         <button className="btn btn-ghost" onClick={onBack}>Back</button>

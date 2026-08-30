@@ -40,6 +40,65 @@
 // ===========================================================================
 
 export const SOURCES = {
+  garbinsky2025: {
+    key: "garbinsky2025",
+    citation:
+      "Garbinsky, E. N., Blanchard, S. J., & Kim, L. (2025). Financial mindfulness: A scale. Personality and Social Psychology Bulletin, 51(9), 1793–1809.",
+    doi: "10.1177/01461672241265995",
+    instrument: "Financial Mindfulness Scale (8 items; awareness + acceptance)",
+    reliability:
+      "Nine studies including a financial-services field survey. Predicts sunk cost bias, impulse buying and financial withdrawal INCREMENTALLY over money-management stress, trait self-control and general trait mindfulness.",
+    licence:
+      "⚠️ ITEM WORDING INCOMPLETE. Two items are reproduced from public summaries; the remaining six are constructed from the published construct definition. RETRIEVE THE ARTICLE AND ITS SUPPLEMENT, replace the wording, and confirm the response anchors before collecting data.",
+  },
+  brownRyanState: {
+    key: "brownRyanState",
+    citation:
+      "Brown, K. W., & Ryan, R. M. (2003). The benefits of being present: Mindfulness and its role in psychological well-being. Journal of Personality and Social Psychology, 84(4), 822–848. [State MAAS, 5 items]",
+    doi: "10.1037/0022-3514.84.4.822",
+    instrument: "State MAAS (5 items, 0–6)",
+    reliability:
+      "⚠️ No reliability coefficient is published in any publicly available distribution document. The state version is also absent from the official SDT distribution page. Report your own alpha and treat it as an exploratory manipulation check, not a headline measure.",
+    licence: "Travels under the same free-for-research terms as the trait MAAS.",
+  },
+  rookFisher1995: {
+    key: "rookFisher1995",
+    citation:
+      "Rook, D. W., & Fisher, R. J. (1995). Normative influences on impulsive buying behavior. Journal of Consumer Research, 22(3), 305–313.",
+    doi: "10.1086/209452",
+    instrument: "Buying Impulsiveness Scale (9 items, 5-point)",
+    reliability: "α = .88 (Study 1), .82 (Study 2)",
+    licence:
+      "Items printed in the article. ⚠️ Three items here follow published wording; the rest are constructed from the construct definition. Verify against the article before collecting.",
+  },
+  tangney2004: {
+    key: "tangney2004",
+    citation:
+      "Tangney, J. P., Baumeister, R. F., & Boone, A. L. (2004). High self-control predicts good adjustment, less pathology, better grades, and interpersonal success. Journal of Personality, 72(2), 271–324.",
+    doi: "10.1111/j.0022-3506.2004.00263.x",
+    instrument: "Brief Self-Control Scale (13 items, 5-point)",
+    reliability: "⚠️ Secondary sources report α ≈ .75–.85 for the brief form; verify against the original before citing a figure.",
+    licence:
+      "Free for non-commercial academic research with citation. Included here as a COVARIATE, because trait mindfulness and trait self-control overlap substantially (Bowlin & Baer, 2012: r = .53; the acting-with-awareness facet, which the MAAS most resembles, r = .55).",
+  },
+  bowlinBaer2012: {
+    key: "bowlinBaer2012",
+    citation:
+      "Bowlin, S. L., & Baer, R. A. (2012). Relationships between mindfulness, self-control, and psychological functioning. Personality and Individual Differences, 52(4), 411–415.",
+    doi: "10.1016/j.paid.2011.10.050",
+    instrument: "Evidence for the mindfulness / self-control overlap",
+    reliability: "N = 280. FFMQ total (excluding observe) r = .53 with self-control; acting with awareness r = .55.",
+    licence: "Cited as the basis for including a self-control covariate.",
+  },
+  vanDam2024: {
+    key: "vanDam2024",
+    citation:
+      "Van Dam, N. T., Targett, J., Burger, A., Davies, J. N., & Galante, J. (2024). Development and validation of the Inventory of Meditation Experiences. Mindfulness, 15(6), 1429–1442.",
+    doi: "10.1007/s12671-024-02384-9",
+    instrument: "Critique of single-item meditation-practice measures",
+    licence:
+      "Cited to acknowledge that the meditation-practice items here are an author-constructed practice history, not a validated scale — which pre-empts the objection rather than inviting it.",
+  },
   waweru2008: {
     key: "waweru2008",
     citation:
@@ -133,6 +192,29 @@ export const SOURCES = {
     reliability:
       "IRT graded-response calibration; CFPB reports marginal reliability rather than α.",
     licence: "Public domain; attribution to CFPB expected.",
+  },
+  susis2023: {
+    key: "susis2023",
+    citation:
+      "Alves de Castro, C. (2023). Designing and validating a method to measure young people's susceptibility to social media influencers: The SUSIS questionnaire. Studies in Media and Communication, 11(6), 398–411.",
+    doi: "10.11114/smc.v11i6.6165",
+    instrument:
+      "SUSIS — Susceptibility to Social Media Influencers Questionnaire. SOCIAL_PERCEPTION subscale (9 items: perception towards influencers, parasocial relationship, consumer trust).",
+    reliability:
+      "SOCIAL_PERCEPTION α = .829; HARMFUL α = .907; overall influence α = .912. 25 items retained from an initial pool of 112 through factor analysis.",
+    licence:
+      "Open access (Redfame, CC BY). Items are printed in Table 6 of the article. The HARMFUL subscale is NOT administered here — it rates promotion of violence, tobacco, alcohol and sexual content, which is unrelated to financial decision making and inappropriate in a finance questionnaire.",
+  },
+  netemeyer2018: {
+    key: "netemeyer2018",
+    citation:
+      "Netemeyer, R. G., Warmath, D., Fernandes, D., & Lynch, J. G. (2018). How am I doing? Perceived financial well-being, its potential antecedents, and its relation to overall well-being. Journal of Consumer Research, 45(1), 68–89.",
+    doi: "10.1093/jcr/ucx109",
+    instrument: "Perceived Financial Well-Being Scale (PFWBS) — Current Money Management Stress (5 items) + Expected Future Financial Security (5 items)",
+    reliability:
+      "Current Money Management Stress α = .84; Expected Future Financial Security α = .87 (see also the cross-cultural validation in Journal of Family and Economic Issues, 2026).",
+    licence:
+      "Published in the article; free for non-commercial academic research with citation. Seek the authors' permission before reproducing the items verbatim in a thesis appendix.",
   },
   lusardiMitchell2014: {
     key: "lusardiMitchell2014",
@@ -264,6 +346,15 @@ export const SCALES = {
     labels: ["Always", "Often", "Sometimes", "Rarely", "Never"],
     stem: "How often does this statement apply to you?",
   },
+  // State MAAS anchors: 0 = not at all, 3 = somewhat, 6 = very much.
+  // Stored 1-7 by the UI; scoring subtracts 1 and reverse-scores.
+  state7: {
+    id: "state7",
+    points: 7,
+    labels: ["Not at all", "", "", "Somewhat", "", "", "Very much"],
+    stem: "Thinking about the last few minutes while you were looking at the feed…",
+  },
+
   // Standard agreement Likert used for bias and social-media constructs.
   agree5: {
     id: "agree5",
@@ -310,6 +401,7 @@ export const SM_USE = {
   icon: "📱",
   scored: false,
   note: "Descriptive covariates. Modelled on the usage battery reported alongside Ni et al. (2020) and the OSC (2024) finfluencer survey.",
+  sourceLine: "Usage items modelled on the Ontario Securities Commission & The Decision Lab (2024) finfluencer survey and the usage battery reported alongside Ni, Chan & Cheung (2020).",
   items: [
     {
       id: "sm_hours",
@@ -335,23 +427,30 @@ export const SM_USE = {
       src: "osc2024",
       adapt: "contextual",
     },
-    {
-      id: "sm_follow",
-      type: "choice",
-      q: "How many finance creators / 'finfluencers' do you actively follow?",
-      options: ["None", "1–2", "3–5", "6–10", "More than 10"],
-      src: "osc2024",
-      adapt: "contextual",
-    },
-    {
-      id: "sm_acted",
-      type: "choice",
-      q: "In the last 12 months, have you made a financial decision (bought, sold, invested, or spent) at least partly because of something you saw on social media?",
-      options: ["Never", "Once", "2–3 times", "4–10 times", "More than 10 times"],
-      src: "osc2024",
-      adapt: "contextual",
-    },
+    // NOTE — `sm_follow` (number of finfluencers followed) was removed at the
+    // researcher's instruction to shorten this block. Exposure is now captured
+    // by sm_hours × sm_fincontent. `sm_acted` was also removed from this block
+    // but RETAINED as SMFI_CRITERION below, where it serves as the criterion
+    // variable for the SMFI scale rather than as a descriptive covariate.
   ],
+};
+
+// ---------------------------------------------------------------------------
+// CRITERION ITEM for the newly developed SMFI scale.
+// Rendered at the foot of the SMFI page, NOT in the social-media-use block and
+// NOT summed into the SMFI mean. Its only job is criterion validity: a new
+// scale must predict something outside itself, and this is the single most
+// face-valid behavioural indicator available without a longitudinal design.
+// Analysis: Spearman rho(SMFI_mean, sm_acted_num) and an ordinal regression of
+// sm_acted_num on SMFI_mean controlling for sm_hours and sm_fincontent.
+// ---------------------------------------------------------------------------
+export const SMFI_CRITERION = {
+  id: "sm_acted",
+  type: "choice",
+  q: "In the last 12 months, have you made a financial decision (bought, sold, invested, or spent) at least partly because of something you saw on social media?",
+  options: ["Never", "Once", "2–3 times", "4–10 times", "More than 10 times"],
+  src: "osc2024",
+  adapt: "contextual",
 };
 
 // ===========================================================================
@@ -361,48 +460,113 @@ export const SM_USE = {
 // validated parents; must be reported as scale DEVELOPMENT with full
 // EFA → CFA → HTMT discriminant validity in the sample.
 // ===========================================================================
-export const SMFI = {
-  id: "smfi",
-  title: "Social media and your money decisions",
+export const SMI = {
+  id: "smi",
+  title: "Social media influence",
   icon: "📲",
   scored: true,
   scoring: "mean",
   range: [1, 5],
   scale: "agree5",
-  note: "Newly developed scale. Parent instruments: Ni et al. (2020) engagement structure; Ohanian (1990) source credibility; eWOM information-adoption items.",
+  note:
+    "Anchored on a PUBLISHED, VALIDATED instrument: the SOCIAL_PERCEPTION subscale of SUSIS (Alves de Castro, 2023), α = .829. Items 1–9 are the published SUSIS items re-anchored from influencers-in-general to finance creators. Items 10–12 extend the scale to financial adoption, which SUSIS does not cover.",
+  sourceLine:
+    "Adapted from the SUSIS questionnaire — Alves de Castro (2023), Studies in Media and Communication, 11(6), 398–411. SOCIAL_PERCEPTION subscale, α = .829.",
   subscales: {
-    engagement: "Financial-content engagement (affective / behavioural / cognitive)",
-    credibility: "Perceived finfluencer credibility",
-    adoption: "Information adoption and acting on feed content",
+    perception: "Perception towards influencers (SUSIS C1)",
+    parasocial: "Parasocial relationship (SUSIS C3)",
+    trust: "Consumer trust in influencers (SUSIS C4)",
+    adoption: "Financial information adoption (extension)",
   },
   items: [
-    // --- Engagement (Ni et al. 2020 tri-factor structure, re-specified) ---
-    { id: "smfi1", sub: "engagement", facet: "affective", src: "ni2020", adapt: "adapted",
-      q: "I feel excited when I see posts about people making money from investments." },
-    { id: "smfi2", sub: "engagement", facet: "affective", src: "ni2020", adapt: "adapted",
-      q: "Financial content on social media holds my attention more than other content." },
-    { id: "smfi3", sub: "engagement", facet: "behavioural", src: "ni2020", adapt: "adapted",
-      q: "I like, save, or share financial posts I come across." },
-    { id: "smfi4", sub: "engagement", facet: "behavioural", src: "ni2020", adapt: "adapted",
-      q: "I actively search social media for investment or money-saving ideas." },
-    { id: "smfi5", sub: "engagement", facet: "cognitive", src: "ni2020", adapt: "adapted",
-      q: "I think about financial posts I have seen even after I stop scrolling." },
-    { id: "smfi6", sub: "engagement", facet: "cognitive", src: "ni2020", adapt: "adapted",
+    // --- SUSIS C1 — Perception towards influencers ------------------------
+    { id: "smi1", sub: "perception", src: "susis2023", adapt: "adapted",
+      q: "I follow many finance creators on social media." },
+    { id: "smi2", sub: "perception", src: "susis2023", adapt: "adapted",
+      q: "I enjoy following finance creators online." },
+    { id: "smi3", sub: "perception", src: "susis2023", adapt: "adapted",
+      q: "The finance creators I follow suggest helpful products or ideas to me." },
+    // --- SUSIS C3 — Parasocial relationship -------------------------------
+    { id: "smi4", sub: "parasocial", src: "susis2023", adapt: "adapted",
+      q: "If a finance creator I follow starts another channel, I will follow them there too." },
+    { id: "smi5", sub: "parasocial", src: "susis2023", adapt: "adapted",
+      q: "Finance creators seem to understand the kinds of thing I want to know about money." },
+    { id: "smi6", sub: "parasocial", src: "susis2023", adapt: "adapted",
+      q: "The finance creators I follow are the kind of person I would like to spend time with." },
+    // --- SUSIS C4 — Consumer trust ----------------------------------------
+    { id: "smi7", sub: "trust", src: "susis2023", adapt: "adapted",
+      q: "I would buy a financial product based on the advice of a finance creator I follow." },
+    { id: "smi8", sub: "trust", src: "susis2023", adapt: "adapted",
+      q: "I would follow investment recommendations from the finance creators I follow." },
+    { id: "smi9", sub: "trust", src: "susis2023", adapt: "adapted",
+      q: "In future, I will invest in things recommended by the finance creators I follow." },
+    // --- Financial adoption extension -------------------------------------
+    // SUSIS measures susceptibility to influencers in general. These three
+    // carry the construct into money decisions specifically, which is what
+    // the research question is about. Flagged as an extension, not as SUSIS.
+    { id: "smi10", sub: "adoption", src: "ni2020", adapt: "contextual",
       q: "Social media is one of my main sources of information about money." },
-    // --- Credibility (Ohanian 1990, semantic differential → Likert) ---
-    { id: "smfi7", sub: "credibility", facet: "expertise", src: "ohanian1990", adapt: "adapted",
-      q: "The finance creators I follow are knowledgeable about investing." },
-    { id: "smfi8", sub: "credibility", facet: "trustworthiness", src: "ohanian1990", adapt: "adapted",
-      q: "The finance creators I follow are honest about the risks involved." },
-    { id: "smfi9", sub: "credibility", facet: "trustworthiness", src: "ohanian1990", adapt: "adapted",
-      q: "I can rely on the financial information shared by creators I follow." },
-    { id: "smfi10", sub: "credibility", facet: "attractiveness", src: "ohanian1990", adapt: "adapted",
-      q: "I find the lifestyle shown by finance creators appealing." },
-    // --- Information adoption / acting ---
-    { id: "smfi11", sub: "adoption", src: "ni2020", adapt: "contextual",
+    { id: "smi11", sub: "adoption", src: "ni2020", adapt: "contextual",
       q: "I have changed a money decision because of something I saw on social media." },
-    { id: "smfi12", sub: "adoption", src: "ni2020", adapt: "contextual",
+    { id: "smi12", sub: "adoption", src: "ni2020", adapt: "contextual",
       q: "Social media posts influence which investments I consider." },
+  ],
+};
+
+/**
+ * Legacy alias. The block was called SMFI ("Social Media Financial
+ * Influence") while it was a newly developed scale. It is now anchored on
+ * SUSIS and is called SMI. The alias keeps older imports working.
+ */
+export const SMFI = SMI;
+
+// ===========================================================================
+// OPEN-ENDED PROBE — shown at the foot of the feed, after every closed item
+// in the social-media and bias sections has been answered.
+// ---------------------------------------------------------------------------
+// Purpose: catch influences the fixed battery does not name. Ten bias
+// constructs and a 12-item influence scale between them fix what can be
+// reported; anything outside that frame is invisible unless a participant is
+// given somewhere to put it. Responses are analysed by inductive thematic
+// coding, and a theme that recurs is grounds for a follow-up study or an
+// added construct — not for a post-hoc addition to this dataset's models.
+//
+// Both items are OPTIONAL, by design. A forced free-text box produces "na",
+// "nothing" and keyboard mash, which is worse than an empty field because it
+// looks like data.
+//
+// ANONYMITY. Free text is the one place a participant can accidentally
+// identify themselves or someone else. The consent form promises anonymity,
+// so the prompt says plainly what not to type, and the responses must be
+// screened for identifying detail before the dataset is shared or archived.
+// ===========================================================================
+export const OPEN_ENDED = {
+  id: "openEnded",
+  title: "Anything we missed?",
+  icon: "💬",
+  scored: false,
+  optional: true,
+  sourceLine:
+    "Author-constructed open probe. Analysed by inductive thematic coding (Braun & Clarke, 2006) to identify influences not covered by the closed battery.",
+  privacyNote:
+    "Please do not include your name, anyone else's name, or contact details — your answers are stored anonymously and we cannot remove personal details from them afterwards.",
+  items: [
+    {
+      id: "open_influence",
+      type: "text",
+      rows: 4,
+      maxLength: 1000,
+      q: "Apart from the things we have already asked about, is there anything else on social media that influences your money decisions?",
+      hint: "Optional. Anything at all — a type of post, a person, a group, a feeling, a habit.",
+    },
+    {
+      id: "open_feed",
+      type: "text",
+      rows: 3,
+      maxLength: 1000,
+      q: "Thinking about the posts you just saw — was there anything that made you want to act, or made you hold back, that we did not ask about?",
+      hint: "Optional.",
+    },
   ],
 };
 
@@ -618,6 +782,12 @@ export const MAAS = {
 // the 5-item form runs ~0.90 points lower on average (2.3 points among
 // lower-income respondents) because of its higher share of negatively worded items.
 // ===========================================================================
+/**
+ * DEPRECATED as the administered outcome — superseded by FWB (Netemeyer et al.,
+ * 2018) so that the whole study shares one agreement metric. Kept in the bank,
+ * with its item ids namespaced to cfpb1–cfpb10, so the CFPB form can be
+ * restored by flipping DESIGN.wellbeingScale back to "cfpb".
+ */
 export const CFPB = {
   id: "cfpb",
   title: "Your financial well-being",
@@ -625,18 +795,161 @@ export const CFPB = {
   src: "cfpb2015",
   scoring: "cfpbLookup",
   range: [0, 100],
-  shortForm: { name: "CFPB-5", items: ["fwb3", "fwb5", "fwb6", "fwb8", "fwb10"] },
+  shortForm: { name: "CFPB-5", items: ["cfpb3", "cfpb5", "cfpb6", "cfpb8", "cfpb10"] },
   items: [
-    { id: "fwb1", scale: "cfpbDescribes", adapt: "verbatim", q: "I could handle a major unexpected expense." },
-    { id: "fwb2", scale: "cfpbDescribes", adapt: "verbatim", q: "I am securing my financial future." },
-    { id: "fwb3", scale: "cfpbDescribes", adapt: "verbatim", reverse: true, q: "Because of my money situation, I feel like I will never have the things I want in life." },
-    { id: "fwb4", scale: "cfpbDescribes", adapt: "verbatim", q: "I can enjoy life because of the way I'm managing my money." },
-    { id: "fwb5", scale: "cfpbDescribes", adapt: "verbatim", reverse: true, q: "I am just getting by financially." },
-    { id: "fwb6", scale: "cfpbDescribes", adapt: "verbatim", reverse: true, q: "I am concerned that the money I have or will save won't last." },
-    { id: "fwb7", scale: "cfpbOften", adapt: "verbatim", reverse: true, q: "Giving a gift for a wedding, birthday or other occasion would put a strain on my finances for the month." },
-    { id: "fwb8", scale: "cfpbOften", adapt: "verbatim", q: "I have money left over at the end of the month." },
-    { id: "fwb9", scale: "cfpbOften", adapt: "verbatim", reverse: true, q: "I am behind with my finances." },
-    { id: "fwb10", scale: "cfpbOften", adapt: "verbatim", reverse: true, q: "My finances control my life." },
+    { id: "cfpb1", scale: "cfpbDescribes", adapt: "verbatim", q: "I could handle a major unexpected expense." },
+    { id: "cfpb2", scale: "cfpbDescribes", adapt: "verbatim", q: "I am securing my financial future." },
+    { id: "cfpb3", scale: "cfpbDescribes", adapt: "verbatim", reverse: true, q: "Because of my money situation, I feel like I will never have the things I want in life." },
+    { id: "cfpb4", scale: "cfpbDescribes", adapt: "verbatim", q: "I can enjoy life because of the way I'm managing my money." },
+    { id: "cfpb5", scale: "cfpbDescribes", adapt: "verbatim", reverse: true, q: "I am just getting by financially." },
+    { id: "cfpb6", scale: "cfpbDescribes", adapt: "verbatim", reverse: true, q: "I am concerned that the money I have or will save won't last." },
+    { id: "cfpb7", scale: "cfpbOften", adapt: "verbatim", reverse: true, q: "Giving a gift for a wedding, birthday or other occasion would put a strain on my finances for the month." },
+    { id: "cfpb8", scale: "cfpbOften", adapt: "verbatim", q: "I have money left over at the end of the month." },
+    { id: "cfpb9", scale: "cfpbOften", adapt: "verbatim", reverse: true, q: "I am behind with my finances." },
+    { id: "cfpb10", scale: "cfpbOften", adapt: "verbatim", reverse: true, q: "My finances control my life." },
+  ],
+};
+
+// ===========================================================================
+// BLOCK F2 — Financial well-being on a UNIFORM AGREEMENT SCALE
+// ---------------------------------------------------------------------------
+// This REPLACES the CFPB scale as the administered outcome measure.
+//
+// WHY THE SWAP WAS NECESSARY, stated plainly for the methodology chapter:
+// the CFPB scale cannot be moved onto an agree/disagree metric and still be
+// the CFPB scale. Its published scores come from an IRT graded-response
+// calibration tied to its own two anchor sets ("Describes me completely …"
+// and "Always … Never"). Re-anchoring the items to agreement voids the
+// CFPB scoring tables, so the 0–100 standardised score and every published
+// norm would no longer apply.
+//
+// Netemeyer et al. (2018) is the correct instrument for that requirement: it
+// is a peer-reviewed, widely cited financial well-being scale that was
+// DESIGNED on a five-point strongly-disagree → strongly-agree metric, so it
+// needs no re-anchoring at all. It is also two-dimensional, which is an
+// analytic gain — social media pressure and present-focused decision making
+// plausibly hit current money stress and future security differently.
+//
+// Scoring: CMMS items are negatively worded and are REVERSE-CODED so that a
+// high total means better well-being, matching the CFPB direction.
+// ===========================================================================
+/**
+ * CONCEPTUAL FRAMEWORK FOR FINANCIAL WELL-BEING
+ * ---------------------------------------------------------------------------
+ * Two instruments define this construct in the literature, and the thesis has
+ * to be explicit about which one it is measuring and what that costs.
+ *
+ * CFPB (2015) defines financial well-being on a 2 × 2: a TIME axis (present
+ * vs future) crossed with a CONTENT axis (security vs freedom of choice).
+ *
+ *                    | SECURITY                      | FREEDOM OF CHOICE
+ *   -----------------|-------------------------------|--------------------------
+ *   PRESENT          | Control over day-to-day and   | Financial freedom to make
+ *                    | month-to-month finances       | choices that let you
+ *                    |                               | enjoy life
+ *   -----------------|-------------------------------|--------------------------
+ *   FUTURE           | Capacity to absorb a          | On track to meet your
+ *                    | financial shock               | financial goals
+ *
+ * NETEMEYER et al. (2018) resolves the same construct into TWO empirical
+ * factors, which map cleanly onto the CFPB TIME axis and collapse the
+ * CONTENT axis:
+ *
+ *   Current Money Management Stress   ≈ CFPB PRESENT row (both cells)
+ *   Expected Future Financial Security ≈ CFPB FUTURE row (both cells)
+ *
+ * WHAT IS GAINED. Netemeyer separates present from future EMPIRICALLY —
+ * they are distinct factors with their own reliabilities (α = .84 and .87),
+ * so a predictor can be shown to hit present stress without touching future
+ * security, or the reverse. The single CFPB score cannot show that. This
+ * matters directly for the research question: social media influence
+ * plausibly raises present money stress (impulsive spending, comparison,
+ * FOMO purchases) while leaving expected future security untouched, or even
+ * inflating it through unrealistic optimism. That is a testable prediction
+ * only if the two are measured separately.
+ *
+ * WHAT IS LOST. The security-vs-freedom distinction. CFPB can say whether a
+ * person's difficulty is about having enough or about feeling able to choose;
+ * Netemeyer cannot. State this as a limitation rather than leaving it out.
+ *
+ * The mapping below is used in the codebook, the questionnaire appendix and
+ * the methodology chapter so the same framework language appears everywhere.
+ */
+export const FWB_FRAMEWORK = {
+  cfpb: {
+    source: "cfpb2015",
+    axes: { time: ["Present", "Future"], content: ["Security", "Freedom of choice"] },
+    cells: [
+      { time: "Present", content: "Security", label: "Control over day-to-day, month-to-month finances" },
+      { time: "Present", content: "Freedom of choice", label: "Financial freedom to make choices that allow enjoyment of life" },
+      { time: "Future", content: "Security", label: "Capacity to absorb a financial shock" },
+      { time: "Future", content: "Freedom of choice", label: "On track to meet financial goals" },
+    ],
+  },
+  netemeyer: {
+    source: "netemeyer2018",
+    factors: [
+      {
+        id: "stress",
+        name: "Current Money Management Stress",
+        alpha: 0.84,
+        mapsTo: "CFPB PRESENT row — spans both 'control over day-to-day finances' and 'freedom to enjoy life', without separating them",
+        items: ["fwb1", "fwb2", "fwb3", "fwb4", "fwb5"],
+      },
+      {
+        id: "security",
+        name: "Expected Future Financial Security",
+        alpha: 0.87,
+        mapsTo: "CFPB FUTURE row — spans both 'capacity to absorb a shock' and 'on track to meet goals', without separating them",
+        items: ["fwb6", "fwb7", "fwb8", "fwb9", "fwb10"],
+      },
+    ],
+  },
+  gained:
+    "Present and future financial well-being become separate, separately reliable outcomes, so a predictor can be shown to affect one and not the other.",
+  lost:
+    "The CFPB security vs freedom-of-choice distinction. Report this as a limitation.",
+};
+
+export const FWB = {
+  id: "fwb",
+  title: "Your financial well-being",
+  icon: "💰",
+  src: "netemeyer2018",
+  scale: "agree5",
+  scoring: "mean",
+  range: [1, 5],
+  scored: true,
+  sourceLine:
+    "Adapted from the Perceived Financial Well-Being Scale — Netemeyer, Warmath, Fernandes & Lynch (2018), Journal of Consumer Research, 45(1), 68–89.",
+  note: "Ten items, one 5-point agreement scale. Replaces the CFPB scale so that every attitudinal block in the study shares a single metric. See FWB_FRAMEWORK above for the explicit CFPB-to-Netemeyer dimension mapping.",
+  subscales: {
+    stress: "Current money management stress (reverse-coded)",
+    security: "Expected future financial security",
+  },
+  items: [
+    // --- Current Money Management Stress — all reverse-coded ---------------
+    { id: "fwb1", sub: "stress", reverse: true, src: "netemeyer2018", adapt: "verbatim",
+      q: "Because of my money situation, I feel I will never have the things I want in life." },
+    { id: "fwb2", sub: "stress", reverse: true, src: "netemeyer2018", adapt: "verbatim",
+      q: "I am behind with my finances." },
+    { id: "fwb3", sub: "stress", reverse: true, src: "netemeyer2018", adapt: "verbatim",
+      q: "My finances control my life." },
+    { id: "fwb4", sub: "stress", reverse: true, src: "netemeyer2018", adapt: "verbatim",
+      q: "Whenever I feel in control of my finances, something happens that sets me back." },
+    { id: "fwb5", sub: "stress", reverse: true, src: "netemeyer2018", adapt: "verbatim",
+      q: "I am unable to enjoy life because I obsess too much about money." },
+    // --- Expected Future Financial Security -------------------------------
+    { id: "fwb6", sub: "security", src: "netemeyer2018", adapt: "verbatim",
+      q: "I am becoming financially secure." },
+    { id: "fwb7", sub: "security", src: "netemeyer2018", adapt: "verbatim",
+      q: "I am securing my financial future." },
+    { id: "fwb8", sub: "security", src: "netemeyer2018", adapt: "verbatim",
+      q: "I will achieve the financial goals that I have set for myself." },
+    { id: "fwb9", sub: "security", src: "netemeyer2018", adapt: "verbatim",
+      q: "I have saved, or will be able to save, enough money to last me to the end of my life." },
+    { id: "fwb10", sub: "security", src: "netemeyer2018", adapt: "verbatim",
+      q: "I will be financially secure until the end of my life." },
   ],
 };
 
@@ -653,6 +966,8 @@ export const LITERACY = {
   src: "lusardiMitchell2014",
   scoring: "sumCorrect",
   note: "Formative knowledge index. Report % correct, DK rate and item difficulty — NOT Cronbach's α.",
+  skippable: true,
+  sourceLine: "'Big Three' plus GFLEC 'Big Five' financial literacy questions — Lusardi & Mitchell (2014), Journal of Economic Literature, 52(1), 5–44. Currency localised to ₹.",
   items: [
     {
       id: "lit1", core: "big3", concept: "Compound interest", adapt: "verbatim (₹ localised)",
@@ -692,6 +1007,179 @@ export const LITERACY = {
   ],
 };
 
+
+// ===========================================================================
+// BLOCK H — Financial Mindfulness (Garbinsky, Blanchard & Kim, 2025)
+// ---------------------------------------------------------------------------
+// THE construct for a thesis on "the role of mindfulness in financial
+// decisions". The MAAS measures general everyday attention — spilling things,
+// driving on autopilot — which is a poor match for a question about money.
+// This scale measures awareness of one's actual financial state plus
+// acceptance of it, and in the source predicts sunk cost bias, impulse buying
+// and financial avoidance INCREMENTALLY over trait self-control and general
+// trait mindfulness. That incremental-validity result is the published
+// precedent for the discriminant-validity argument this thesis needs.
+//
+// ⚠️ ITEM WORDING IS PROVISIONAL. FM1 and FM5 follow wording reproduced in
+// public summaries of the article. The remaining six are constructed from the
+// published construct definition because the item list is paywalled. RETRIEVE
+// THE ARTICLE AND ITS SUPPLEMENT AND REPLACE THEM BEFORE COLLECTING DATA.
+// ===========================================================================
+export const FIN_MINDFULNESS = {
+  id: "finMindfulness",
+  code: "FMI",
+  title: "Awareness of your money",
+  icon: "🌱",
+  scale: "agree5",
+  scoring: "mean",
+  range: [1, 5],
+  src: "garbinsky2025",
+  subscales: { awareness: "Financial awareness", acceptance: "Financial acceptance" },
+  items: [
+    { id: "fmi1", sub: "awareness", adapt: "verbatim", q: "When I want to buy something, I know exactly how much money I have available to spend." },
+    { id: "fmi2", sub: "awareness", adapt: "contextual", q: "I know roughly how much is in my bank account without having to check." },
+    { id: "fmi3", sub: "awareness", adapt: "contextual", q: "I could say fairly accurately how much I spent last month." },
+    { id: "fmi4", sub: "awareness", adapt: "contextual", q: "I know what I currently owe on any loans, cards or borrowings." },
+    { id: "fmi5", sub: "acceptance", adapt: "verbatim", reverse: true, q: "I cannot look at my card or account statements without my emotions taking over." },
+    { id: "fmi6", sub: "acceptance", adapt: "contextual", q: "I can look at my whole financial situation calmly, even when it is not good news." },
+    { id: "fmi7", sub: "acceptance", adapt: "contextual", reverse: true, q: "Thinking about where I stand financially makes me anxious." },
+    { id: "fmi8", sub: "acceptance", adapt: "contextual", q: "I can accept my current financial situation as it is, without being hard on myself about it." },
+  ],
+};
+
+// ===========================================================================
+// BLOCK I — State mindfulness, measured immediately after the feed
+// ---------------------------------------------------------------------------
+// This is what turns the mindful-pause arm from a behavioural manipulation
+// into a test of MECHANISM. Without it, the arm can only show that a pause
+// changed behaviour; with it, the claim becomes that the pause changed
+// state mindfulness, and that state mindfulness is what changed behaviour.
+// That is the difference between "a pause helps" and "mindfulness is the
+// route by which it helps" — which is the thesis.
+//
+// Administered ONCE, immediately after the feed, in every arm.
+// ===========================================================================
+export const STATE_MAAS = {
+  id: "stateMaas",
+  code: "SMS",
+  title: "How that felt",
+  icon: "🫧",
+  scale: "state7",
+  scoring: "meanReversed",
+  range: [0, 6],
+  src: "brownRyanState",
+  note: "All five items describe lapses and ARE reverse-scored (unlike the trait MAAS, whose anchoring does the inverting). Scored 0–6 after subtracting 1 from the stored 1–7 index.",
+  items: [
+    { id: "sms1", adapt: "verbatim", q: "I was finding it difficult to stay focused on what was happening." },
+    { id: "sms2", adapt: "verbatim", q: "I was doing something without paying attention." },
+    { id: "sms3", adapt: "verbatim", q: "I was preoccupied with the future or the past." },
+    { id: "sms4", adapt: "verbatim", q: "I was doing something automatically, without being aware of what I was doing." },
+    { id: "sms5", adapt: "verbatim", q: "I was rushing through something without being really attentive to it." },
+  ],
+};
+
+// ===========================================================================
+// BLOCK J — Buying impulsiveness (Rook & Fisher, 1995)
+// ---------------------------------------------------------------------------
+// The missing link in the causal chain. SMFI → bias → FINANCIAL WELL-BEING
+// skips a step: well-being is driven mostly by income, debt and savings, and
+// is not plausibly moved by a feed in the short run. Impulsive buying is the
+// behaviour social media actually acts on, and it is the outcome most likely
+// to show an effect of the feed manipulation.
+//
+// ⚠️ BIS1, BIS3 and BIS9 follow published wording; the rest are constructed
+// from the construct definition. Verify against the article before collecting.
+// ===========================================================================
+export const IMPULSIVENESS = {
+  id: "impulsiveness",
+  code: "BIS",
+  title: "How you buy",
+  icon: "🛒",
+  scale: "agree5",
+  scoring: "mean",
+  range: [1, 5],
+  src: "rookFisher1995",
+  items: [
+    { id: "bis1", adapt: "verbatim", q: "I often buy things spontaneously." },
+    { id: "bis2", adapt: "contextual", q: "\"Just do it\" describes the way I buy things." },
+    { id: "bis3", adapt: "verbatim", q: "\"Buy now, think about it later\" describes me." },
+    { id: "bis4", adapt: "contextual", q: "Sometimes I feel like buying things on the spur of the moment." },
+    { id: "bis5", adapt: "contextual", q: "I buy things according to how I feel at the moment." },
+    { id: "bis6", adapt: "contextual", q: "I carefully plan most of my purchases.", reverse: true },
+    { id: "bis7", adapt: "contextual", q: "Sometimes I am a bit reckless about what I buy." },
+    { id: "bis8", adapt: "contextual", q: "\"I see it, I buy it\" describes me." },
+    { id: "bis9", adapt: "verbatim", q: "I avoid buying things that are not on my shopping list.", reverse: true },
+  ],
+};
+
+// ===========================================================================
+// BLOCK K — Trait self-control (Tangney, Baumeister & Boone, 2004)
+// ---------------------------------------------------------------------------
+// A COVARIATE, not a construct of interest, and the single most effective
+// defence against the objection this thesis will certainly face: "your
+// mindfulness effect is just self-control wearing a different name."
+//
+// The objection has teeth. Bowlin & Baer (2012) report r = .53 between
+// mindfulness and self-control overall, and r = .55 for the acting-with-
+// awareness facet — which is essentially what the MAAS measures. Without this
+// covariate there is no way to answer it. With it, the incremental-validity
+// test can be pre-registered and reported.
+//
+// ⚠️ Item wording follows the widely circulated form of the BSCS. Verify
+// against the original article before collecting.
+// ===========================================================================
+export const SELF_CONTROL = {
+  id: "selfControl",
+  code: "SCS",
+  title: "How you handle temptation",
+  icon: "🧭",
+  scale: "agree5",
+  scoring: "mean",
+  range: [1, 5],
+  src: "tangney2004",
+  note: "Covariate. Pre-register the incremental-validity test: mindfulness predicting the outcome while controlling for this.",
+  items: [
+    { id: "scs1", adapt: "adapted", q: "I am good at resisting temptation." },
+    { id: "scs2", adapt: "adapted", reverse: true, q: "I have a hard time breaking bad habits." },
+    { id: "scs3", adapt: "adapted", reverse: true, q: "I am lazy." },
+    { id: "scs4", adapt: "adapted", reverse: true, q: "I say inappropriate things." },
+    { id: "scs5", adapt: "adapted", reverse: true, q: "I do certain things that are bad for me, if they are fun." },
+    { id: "scs6", adapt: "adapted", q: "I refuse things that are bad for me." },
+    { id: "scs7", adapt: "adapted", reverse: true, q: "I wish I had more self-discipline." },
+    { id: "scs8", adapt: "adapted", q: "People would say that I have iron self-discipline." },
+    { id: "scs9", adapt: "adapted", reverse: true, q: "Pleasure and fun sometimes keep me from getting work done." },
+    { id: "scs10", adapt: "adapted", reverse: true, q: "I have trouble concentrating." },
+    { id: "scs11", adapt: "adapted", q: "I am able to work effectively towards long-term goals." },
+    { id: "scs12", adapt: "adapted", reverse: true, q: "Sometimes I cannot stop myself from doing something, even if I know it is wrong." },
+    { id: "scs13", adapt: "adapted", reverse: true, q: "I often act without thinking through all the alternatives." },
+  ],
+};
+
+// ===========================================================================
+// BLOCK L — Meditation practice history
+// ---------------------------------------------------------------------------
+// A necessary covariate in any mindfulness study: people who already meditate
+// differ systematically. There is no validated short measure of practice
+// history — Van Dam et al. (2024) criticise exactly this gap — so these are
+// author-constructed and reported as such, which pre-empts the objection
+// rather than inviting it.
+// ===========================================================================
+export const MEDITATION = {
+  id: "meditation",
+  title: "Mindfulness practice",
+  icon: "🧘",
+  scored: false,
+  src: "vanDam2024",
+  items: [
+    { id: "med_ever", type: "choice", q: "Have you ever practised meditation or mindfulness regularly?",
+      options: ["No, never", "I tried it briefly", "Yes, in the past", "Yes, currently"] },
+    { id: "med_years", type: "choice", q: "If yes, for roughly how long in total?",
+      options: ["Not applicable", "Less than 6 months", "6 months to 2 years", "2 to 5 years", "More than 5 years"] },
+    { id: "med_days", type: "choice", q: "In the past month, on how many days did you practise?",
+      options: ["None", "1–3 days", "4–10 days", "11–20 days", "More than 20 days"] },
+  ],
+};
+
 // ===========================================================================
 // Convenience exports
 // ===========================================================================
@@ -705,16 +1193,64 @@ export const CONSTRUCT_REGISTRY = [
     range: BIAS_CONSTRUCTS[k].scale === "confidence7" ? [1, 7] : [1, 5],
     source: BIAS_CONSTRUCTS[k].src,
   })),
-  { id: "maas", label: "Mindfulness (MAAS)", range: [1, 6], source: "brownRyan2003" },
-  { id: "cfpb", label: "Financial Well-Being (CFPB)", range: [0, 100], source: "cfpb2015" },
+  { id: "fwb", label: "Financial Well-Being (Netemeyer et al., 2018)", range: [1, 5], source: "netemeyer2018" },
   { id: "literacy", label: "Financial Literacy (Big Five)", range: [0, 5], source: "lusardiMitchell2014" },
 ];
 
 // Total item count, for the "12–15 minutes" claim on the About screen.
+// Read from design.js without importing it, to avoid a circular import:
+// design.js does not import instruments.js, but tools that load instruments
+// first would otherwise get a partially-initialised module.
+const DESIGN_WELLBEING = "netemeyer"; // keep in step with DESIGN.wellbeingScale
+
+// Counts only what is ACTUALLY ADMINISTERED under the current DESIGN, so the
+// "about N questions" claim on the consent screen cannot drift away from the
+// instrument. Blocks switched off in design.js are excluded.
 export const ITEM_COUNT =
   SM_USE.items.length +
   SMFI.items.length +
+  1 + // SMFI_CRITERION (sm_acted), shown at the foot of the SMFI page
   ALL_BIAS_IDS.reduce((n, k) => n + BIAS_CONSTRUCTS[k].items.length, 0) +
-  MAAS.items.length +
-  CFPB.items.length +
+  (DESIGN_WELLBEING === "both"
+    ? FWB.items.length + CFPB.items.length
+    : DESIGN_WELLBEING === "cfpb"
+      ? CFPB.items.length
+      : FWB.items.length) +
   LITERACY.items.length;
+
+/**
+ * Blocks retired from the administered instrument but kept in the bank so the
+ * design can be reversed without rewriting code:
+ *   MAAS, FIN_MINDFULNESS, STATE_MAAS, MEDITATION  — mindfulness
+ *   IMPULSIVENESS, SELF_CONTROL                     — behaviour covariates
+ *   CFPB                                            — superseded by FWB
+ */
+export const RETIRED_BLOCK_ITEMS =
+  MAAS.items.length + FIN_MINDFULNESS.items.length + STATE_MAAS.items.length +
+  MEDITATION.items.length + IMPULSIVENESS.items.length + SELF_CONTROL.items.length +
+  CFPB.items.length;
+
+// ---------------------------------------------------------------------------
+// Source attribution shown ON THE PAGE, so a participant (and an examiner)
+// can see which published instrument each screen is adapted from without
+// digging through an appendix.
+// ---------------------------------------------------------------------------
+export function citationsFor(srcKeys) {
+  const seen = new Set();
+  const out = [];
+  for (const k of [].concat(srcKeys).filter(Boolean)) {
+    if (seen.has(k)) continue;
+    seen.add(k);
+    const src = SOURCES[k];
+    if (src?.citation) out.push(src.citation);
+  }
+  return out;
+}
+
+/** All distinct source keys used by a set of bias construct ids. */
+export function biasSourceKeys(constructIds) {
+  return [].concat(constructIds).flatMap((k) => {
+    const c = BIAS_CONSTRUCTS[k];
+    return c ? [c.src, c.src2] : [];
+  }).filter(Boolean);
+}

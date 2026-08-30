@@ -36,14 +36,15 @@ invalidate the very psychometrics they are being used for.
 
 | Construct | Instrument | Items | Scale | Provenance |
 |-----------|-----------|------:|-------|------------|
-| Social media use | Descriptive covariates | 5 | categorical | contextual (OSC, 2024) |
+| Social media use | Descriptive covariates | 3 | categorical | contextual (OSC, 2024) |
+| SMFI criterion item | `sm_acted` — acts taken in last 12 months | 1 | categorical | contextual (OSC, 2024) |
 | Social Media Financial Influence | **Newly developed** from three parents | 12 | 1–5 agree | adapted |
 | Mindfulness | **MAAS-15** | 15 | 1–6 frequency | **verbatim** |
 | Financial well-being | **CFPB Scale (10-item)** | 10 | CFPB anchors | **verbatim** |
 | Financial literacy | **Big Three + Big Five** | 5 | knowledge | **verbatim** (₹ localised) |
 | Feed behaviour | Simulated Social Media Feed | 10 trials | behavioural | novel paradigm |
 
-**81 items total**, roughly 12–15 minutes.
+**80 items total**, roughly 12–15 minutes.
 
 ## Full references
 
@@ -200,3 +201,81 @@ Three deliberate decisions:
 
 **Dial-test every number before launch and at each recruitment wave.** A wrong
 helpline number is worse than no helpline number.
+
+
+---
+
+# Design review — fit between the app and the research question
+
+*Research question: how does social media influence financial well-being, and what is the role of mindfulness, from a behavioural finance perspective?*
+
+Reviewed against that question, the original battery had three gaps. All three are now addressed, and each block can be switched off in `client/src/lib/design.js`.
+
+## 1. Mindfulness was being measured in the wrong domain
+
+The MAAS asks whether you spill things, drive on autopilot, and snack without noticing. It is an excellent measure of *general everyday attention*. It is a poor match for a thesis about **money**, and an examiner is entitled to ask why one should predict the other.
+
+**Added: the Financial Mindfulness Scale** (Garbinsky, Blanchard & Kim, 2025, *PSPB*) — 8 items, awareness plus acceptance of one's actual financial situation. In the source it predicted sunk cost bias, impulse buying and financial avoidance **incrementally over both general trait mindfulness and trait self-control**, across nine studies including a financial-services field survey.
+
+That incremental-validity finding is the published precedent this thesis needs. The MAAS is retained as the general-mindfulness control, which is now its correct role.
+
+## 2. The experiment could not speak to mechanism
+
+The mindful-pause arm could show that a pause changed feed behaviour. It could not show *why*, because state mindfulness was never measured.
+
+**Added: the 5-item state MAAS**, administered immediately after the feed in every arm. This is simultaneously the manipulation check the experiment lacked and the mechanism test the thesis needs. The claim moves from "a pause helps" to "the pause raised state mindfulness, and state mindfulness carried the effect."
+
+⚠️ No reliability coefficient for the state MAAS is published in any publicly available document, and it is absent from the official SDT distribution page. Report your own alpha and treat it as exploratory.
+
+## 3. The causal chain had a missing link
+
+Social media influence → behavioural bias → **financial well-being** skips a step. CFPB well-being is driven largely by income, debt and savings. A feed does not move it in the short run, and cross-sectionally the association will be confounded by income.
+
+**Added: the Buying Impulsiveness Scale** (Rook & Fisher, 1995; α = .82–.88) as the proximal behavioural mediator. Impulsive buying is the behaviour a feed plausibly acts on, and it is the outcome most likely to register an effect of the manipulation.
+
+The model becomes:
+
+```
+Social media influence → behavioural biases → impulsive buying → financial well-being
+                                    ↑
+                       moderated by financial mindfulness
+                       (with trait mindfulness and self-control controlled)
+```
+
+## 4. The objection that would have been raised
+
+"Your mindfulness effect is just self-control."
+
+It has teeth. Bowlin and Baer (2012) report r = .53 between trait mindfulness and self-control overall, rising to **r = .55 for the acting-with-awareness facet — which is essentially what the MAAS measures**. Without a self-control measure there is no way to answer it.
+
+**Added: the Brief Self-Control Scale** (Tangney et al., 2004; 13 items) as a covariate. Pre-register the incremental-validity test: mindfulness predicting the outcome while controlling for self-control. If self-control is cut for length, the limitation must be stated in the discussion rather than left for a reviewer to find.
+
+**Added: meditation practice history** (3 items). People who already meditate differ systematically. There is no validated short measure — Van Dam et al. (2024) criticise exactly this gap — so these are author-constructed and reported as such.
+
+## Where this leaves the contribution
+
+There is a published mediation model linking mindfulness to financial well-being through career goals and work-need satisfaction (Wu, Huang & Lakkanawanit, 2024, *Current Psychology*), and one through materialism in an Indian sample (Sinha, Kumar & Priyadarshi, 2021, *IJBM*).
+
+**No published study links social media exposure → behavioural bias → financial behaviour → financial well-being with mindfulness as moderator, and none combines a randomised feed manipulation with state mindfulness measurement.** That is a defensible novelty claim, and it is now what this instrument is built to test.
+
+## ⚠️ Item wording that must be replaced before collection
+
+Three of the new instruments are behind paywalls. The structure and scoring are correct; some item wording is constructed from published construct definitions and marked `contextual` in the code.
+
+| Scale | Status |
+|---|---|
+| Financial Mindfulness | 2 of 8 items follow published wording. **Retrieve the article and supplement**, replace the remaining 6, and confirm the response anchors. |
+| Buying Impulsiveness | 3 of 9 follow published wording. Verify the rest against the article. |
+| Brief Self-Control | Follows the widely circulated form. Verify against the original. |
+
+Your university library will have all three. This is the single most important remaining task before recruitment.
+
+## Study length
+
+| Preset | Items | Approx. time |
+|---|---|---|
+| `full` | 119 | ~20 min |
+| `recommended` | 96 | ~16 min |
+| `lean` (original) | 81 | ~13 min |
+
+Set in `client/src/lib/design.js`. **Choose before recruitment** — changing the instrument mid-collection makes waves non-comparable.

@@ -5,3 +5,4 @@ server/data/
 .DS_Store
 *.log
 .env
+mindfulfinance-*.patch

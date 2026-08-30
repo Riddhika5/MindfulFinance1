@@ -174,7 +174,7 @@ export default function CheckUp({ onReassess }) {
             <span className="wave-n">#{w.wave}</span>
             <span className="wave-date">{new Date(w.completedAt).toLocaleDateString()}</span>
             <span className="wave-metrics">
-              🧠 {w.metrics.biasIndex ?? "—"} · 📲 {w.metrics.smfi ?? "—"} · 🌱 {w.metrics.maas ?? "—"} · 💰 {w.metrics.cfpb ?? "—"}
+              🧠 {w.metrics.biasIndex ?? "—"} · 📲 {w.metrics.smfi ?? "—"} · 💰 {w.metrics.cfpb ?? "—"}
             </span>
           </div>
         ))}

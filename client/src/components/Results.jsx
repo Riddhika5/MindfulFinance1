@@ -9,6 +9,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { scoreAll, band } from "../lib/scoring.js";
 import { downloadReport } from "../lib/report.js";
+import { queueSubmission, clearSubmission, postResponse } from "../lib/pendingSubmission.js";
 import { recordWave } from "../lib/history.js";
 import { SOURCES, BIAS_CONSTRUCTS } from "../lib/instruments.js";
 import { MODULES, CHALLENGES } from "../lib/learn.js";
@@ -55,7 +56,7 @@ function insightFor(results) {
   const top = cs.slice(0, 2);
   const low = cs[cs.length - 1];
   const smfi = results.smfi.score;
-  const maas = results.maas.score;
+  const maas = results.maas?.score ?? null;
 
   const lines = [];
 
@@ -88,7 +89,7 @@ function insightFor(results) {
     lines.push("In the simulated feed you were fairly quick to act on posts. Building in one checking step is the highest-value change available to you.");
   }
 
-  const kc = results.knowledgeCalibration;
+  const kc = results.literacy?.skipped ? null : results.knowledgeCalibration;
   if (kc && kc.direction === "overestimates") {
     lines.push(`There is a gap between how well you feel you understand financial products and how the knowledge questions went — you rated your understanding higher than the answers bore out. That gap is the most useful thing on this page, because it is invisible from the inside.`);
   } else if (kc && kc.direction === "underestimates") {
@@ -130,29 +131,54 @@ export default function Results({ session, onRestart, onExit, onContinue, embedd
 
   const governanceReady = isConfigured();
 
+  // ---------------------------------------------------------------------
+  // Submitting to the research dataset.
+  //
+  // A participant has just given ten minutes. If the submit fails they are
+  // almost certainly gone, so a failure must not simply throw the answers
+  // away. Two protections:
+  //
+  //   1. The payload is written to localStorage BEFORE the request goes out,
+  //      and only cleared once the server confirms. If the request fails —
+  //      including the 30-to-50-second cold start on Render's free plan,
+  //      which is the single most likely cause of a failed first submit —
+  //      it is retried automatically the next time the app loads.
+  //   2. The error shown is in plain language with a Try again button,
+  //      rather than a raw status code the participant cannot act on.
+  // ---------------------------------------------------------------------
   async function submit() {
     if (!governanceReady) return; // guarded in the UI too; belt and braces
     setSubmitting(true);
     setError(null);
+    const payload = { raw: session, scored: results };
+
+    // Park it first, so a crash or a closed tab does not lose the response.
+    queueSubmission(payload);
+
     try {
-      const r = await fetch("/api/response", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ raw: session, scored: results }),
-      });
-      if (!r.ok) throw new Error(`Server returned ${r.status}`);
+      await postResponse(payload);
       setSubmitted(true);
       try {
         localStorage.setItem("mf_submitted", session.participantId);
-      } catch {
-        /* storage unavailable — the response is still recorded server-side */
-      }
+      } catch { /* storage unavailable — the response is still recorded server-side */ }
+      clearSubmission();
     } catch (e) {
-      setError(e.message);
+      setError(
+        e.retryable
+          ? "We could not reach the server just now. Your answers are saved on this device and will be sent automatically next time you open this page — or press Try again."
+          : `${e.message} Nothing was lost: your report still downloads.`
+      );
+      // A non-retryable rejection means re-sending the same payload will fail
+      // the same way, so do not leave it queued to retry forever.
+      if (!e.retryable) clearSubmission();
     } finally {
       setSubmitting(false);
     }
   }
+
+  // The queued-submission flush lives in App.jsx, so it runs on ANY page
+  // load rather than only when the results screen is reached again.
+
 
   function download() {
     downloadReport(results, session, lines);
@@ -179,9 +205,19 @@ export default function Results({ session, onRestart, onExit, onContinue, embedd
       <div className="score-row">
         <ScoreTile icon="📲" label="Social media influence" value={results.smfi.score} range="5" />
         <ScoreTile icon="🧠" label="Behavioural bias index" value={results.biases.index} range="100" />
-        <ScoreTile icon="🌱" label="Mindfulness (MAAS)" value={results.maas.score} range="6" />
-        <ScoreTile icon="💰" label="Financial well-being" value={results.cfpb.raw} range={results.cfpb.max} />
-        <ScoreTile icon="🧾" label="Financial literacy" value={`${results.literacy.correct}/${results.literacy.total}`} />
+        {results.maas?.score != null && (
+          <ScoreTile icon="🌱" label="Mindfulness (MAAS)" value={results.maas.score} range="6" />
+        )}
+        <ScoreTile
+          icon="💰" label="Financial well-being"
+          value={results.fwb?.score ?? results.cfpb?.raw}
+          range={results.fwb?.score != null ? "5" : results.cfpb?.max}
+        />
+        {results.literacy?.skipped ? (
+          <ScoreTile icon="🧾" label="Financial literacy" value="Skipped" />
+        ) : (
+          <ScoreTile icon="🧾" label="Financial literacy" value={`${results.literacy.correct}/${results.literacy.total}`} />
+        )}
       </div>
 
       <nav className="pill-tabs">
@@ -292,8 +328,14 @@ export default function Results({ session, onRestart, onExit, onContinue, embedd
                   <td className="cite">{SOURCES[c.src]?.citation}</td>
                 </tr>
               ))}
-              <tr><td>Mindfulness</td><td>{SOURCES.brownRyan2003.instrument}</td><td className="cite">{SOURCES.brownRyan2003.citation}</td></tr>
-              <tr><td>Financial well-being</td><td>{SOURCES.cfpb2015.instrument}</td><td className="cite">{SOURCES.cfpb2015.citation}</td></tr>
+              {results.maas?.score != null && (
+                <tr><td>Mindfulness</td><td>{SOURCES.brownRyan2003.instrument}</td><td className="cite">{SOURCES.brownRyan2003.citation}</td></tr>
+              )}
+              <tr>
+                <td>Financial well-being</td>
+                <td>{results.fwb?.score != null ? SOURCES.netemeyer2018.instrument : SOURCES.cfpb2015.instrument}</td>
+                <td className="cite">{results.fwb?.score != null ? SOURCES.netemeyer2018.citation : SOURCES.cfpb2015.citation}</td>
+              </tr>
               <tr><td>Financial literacy</td><td>{SOURCES.lusardiMitchell2014.instrument}</td><td className="cite">{SOURCES.lusardiMitchell2014.citation}</td></tr>
               <tr><td>Social media influence</td><td>{SOURCES.ni2020.instrument} + {SOURCES.ohanian1990.instrument}</td><td className="cite">{SOURCES.ni2020.citation}</td></tr>
               <tr><td>Simulated feed</td><td>{SOURCES.osc2024.instrument}</td><td className="cite">{SOURCES.osc2024.citation}</td></tr>
@@ -353,7 +395,14 @@ export default function Results({ session, onRestart, onExit, onContinue, embedd
           </>
         )}
       </div>
-      {error && <p className="small err">Could not submit: {error}. Your report still downloads.</p>}
+      {error && (
+        <div className="submit-error">
+          <p>{error}</p>
+          <button className="btn btn-ghost" onClick={submit} disabled={submitting}>
+            {submitting ? "Trying…" : "Try again"}
+          </button>
+        </div>
+      )}
 
       {results.quality.flagStraightlining && (
         <p className="small muted">

@@ -224,6 +224,27 @@ the browser, not in PowerShell.
 | `MONGODB_URI` | your MongoDB Atlas connection string |
 | `MONGODB_DB` | `mindfulfinance` |
 | `RESEARCHER_KEY` | a long random string you invent |
+| `MF_INSTITUTION` | your department and university |
+| `MF_RESEARCHER` | your name |
+| `MF_RESEARCHER_EMAIL` | an address you actually monitor |
+| `MF_SUPERVISOR` | supervisor's name and title |
+| `MF_SUPERVISOR_EMAIL` | optional |
+| `MF_ETHICS_COMMITTEE` | your institutional ethics committee |
+| `MF_ETHICS_REF` | your approval reference |
+| `MF_ETHICS_CONTACT` | committee Member Secretary email |
+
+The `MF_` variables lift **pilot mode**. Until all seven required ones are set,
+the app shows a banner and refuses to accept responses. They take effect
+immediately — no rebuild.
+
+Check what is still missing at any time:
+
+```powershell
+Invoke-RestMethod "$app/api/readiness" | ConvertTo-Json -Depth 4
+```
+
+**Do not invent an approval reference to clear the banner.** Get approval first —
+`node tools/build-ethics-pack.mjs` generates the submission documents.
 
 Need a strong key? Generate one here and copy the output:
 

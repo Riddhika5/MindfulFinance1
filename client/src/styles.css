@@ -2346,36 +2346,70 @@ body::before {
 .mx-5 { grid-template-columns: repeat(5, 68px); }
 .mx-6 { grid-template-columns: repeat(6, 62px); }
 .mx-7 { grid-template-columns: repeat(7, 56px); }
+/* The button is the hit area; the circle is drawn on the inner face, so the
+   target can be grown on touch screens without growing the dot itself. */
 .mx-dot {
-  width: 22px; height: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
   margin: 0 auto;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 4px 2px;
+  width: 100%;
+}
+.mx-dot-face {
+  width: 22px; height: 22px;
   border-radius: 50%;
   border: 2px solid #cbd5e1;
   background: #fff;
-  cursor: pointer;
-  padding: 0;
   transition: all 0.15s;
 }
-.mx-dot:hover { border-color: var(--brand); transform: scale(1.12); }
-.mx-on {
+.mx-dot:hover .mx-dot-face { border-color: var(--brand); transform: scale(1.12); }
+.mx-on .mx-dot-face {
   border-color: var(--brand);
   background: var(--brand);
   box-shadow: 0 0 0 3px #ddd6fe;
 }
+.mx-dot:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; border-radius: 8px; }
+/* Desktop reads the anchors from the sticky header, so per-dot labels are off. */
+.mx-dot-label { display: none; }
 
 @media (max-width: 700px) {
-  .mx-row { flex-direction: column; align-items: stretch; gap: 8px; padding: 12px 6px; border-bottom: 1px solid #f1f5f9; }
+  .mx-row { flex-direction: column; align-items: stretch; gap: 6px; padding: 14px 4px; border-bottom: 1px solid #f1f5f9; }
   .mx-head { display: none; }
-  .mx-5, .mx-6, .mx-7 { grid-template-columns: repeat(auto-fit, minmax(38px, 1fr)); }
-  .mx-dot { width: 30px; height: 30px; }
-  /* On mobile the sticky header is gone, so label each dot instead. */
-  .mx-opts::before {
-    content: "Disagree ← → Agree";
-    grid-column: 1 / -1;
-    font-size: 10px;
-    color: var(--muted);
+  .mx-5 { grid-template-columns: repeat(5, 1fr); }
+  .mx-6 { grid-template-columns: repeat(6, 1fr); }
+  .mx-7 { grid-template-columns: repeat(7, 1fr); }
+  .mx-opts { gap: 2px; }
+  /* Each option becomes a full labelled column, comfortably over the 44px
+     touch target guidance, with the anchor spelled out under the circle. */
+  .mx-dot { min-height: 52px; padding: 6px 1px; border-radius: 8px; }
+  .mx-dot:active { background: #f1f5f9; }
+  .mx-dot-face { width: 26px; height: 26px; }
+  .mx-dot-label {
+    display: block;
+    font-size: 11px;
+    line-height: 1.15;
     text-align: center;
-    margin-bottom: 2px;
+    color: var(--muted);
+    overflow-wrap: anywhere;
+    hyphens: auto;
+  }
+  .mx-on .mx-dot-label { color: var(--brand); font-weight: 700; }
+  .mx-q { font-size: 15px; }
+}
+
+/* Seven points will not fit five labels' worth of text on a narrow phone,
+   so below 400px the 6- and 7-point scales label only the ends and middle. */
+@media (max-width: 400px) {
+  .mx-6 .mx-dot-label, .mx-7 .mx-dot-label { font-size: 9.5px; }
+  .mx-6 .mx-dot:not(:first-child):not(:last-child) .mx-dot-label,
+  .mx-7 .mx-dot:not(:first-child):not(:nth-child(4)):not(:last-child) .mx-dot-label {
+    visibility: hidden; height: 0;
   }
 }
 
@@ -2466,3 +2500,197 @@ body::before {
 }
 .sim-card .verify-panel { margin-top: 10px; padding: 11px 13px; }
 .sim-card .verify-panel ul { margin: 0; font-size: 12.5px; }
+
+/* Criterion / follow-up item shown below a matrix on the same page. Visually
+   separated so participants can see it is a different kind of question. */
+.q-tail {
+  margin-top: 26px;
+  padding-top: 20px;
+  border-top: 1px dashed var(--line, #d9d9e3);
+}
+.screen-matrix .q-tail { margin-top: 30px; }
+.q-tail .q-stem { font-weight: 600; margin-bottom: 10px; }
+.q-tail .chip-row { flex-wrap: wrap; }
+
+/* --- On-page source attribution ------------------------------------------ */
+.page-source {
+  margin-top: 26px;
+  padding: 12px 14px;
+  border-left: 3px solid var(--accent, #6c5ce7);
+  background: var(--surface-2, rgba(108, 92, 231, 0.05));
+  border-radius: 0 8px 8px 0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--muted, #5a5a6e);
+}
+.page-source p { margin: 0; }
+.page-source ul { margin: 4px 0 0; padding-left: 18px; }
+.page-source li { margin-bottom: 3px; }
+.page-source-tag {
+  display: inline-block;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--accent, #6c5ce7);
+  margin-bottom: 5px;
+}
+.screen-feed .page-source { margin-top: 18px; }
+
+/* Required-field marker */
+.q-req { color: #e17055; font-weight: 700; margin-left: 4px; }
+.screen-note-soft { opacity: 0.85; font-style: italic; }
+
+/* --- Open-ended probe at the foot of the feed ---------------------------- */
+.open-block {
+  margin-top: 30px;
+  padding: 20px 18px;
+  border: 1px dashed var(--line, #d9d9e3);
+  border-radius: 12px;
+  background: var(--surface-2, rgba(108, 92, 231, 0.04));
+}
+.open-title { margin: 0 0 6px; font-size: 1rem; }
+.open-privacy {
+  margin: 0 0 16px;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: var(--muted, #5a5a6e);
+}
+.open-field { margin-bottom: 18px; display: flex; flex-direction: column; }
+.open-field label { font-size: 0.9rem; font-weight: 600; margin-bottom: 4px; }
+.open-hint { font-size: 0.75rem; color: var(--muted, #5a5a6e); margin-bottom: 7px; }
+.open-field textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line, #d9d9e3);
+  border-radius: 8px;
+  font: inherit;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  resize: vertical;
+  background: var(--surface, #fff);
+  color: inherit;
+}
+.open-field textarea:focus {
+  outline: none;
+  border-color: var(--accent, #6c5ce7);
+  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.15);
+}
+.open-count {
+  align-self: flex-end;
+  font-size: 0.68rem;
+  color: var(--muted, #5a5a6e);
+  margin-top: 3px;
+}
+
+/* ===========================================================================
+   TOUCH TARGETS AND LEGIBILITY ON SMALL SCREENS
+   ---------------------------------------------------------------------------
+   Verified with a scripted walk of the whole journey at 360 / 375 / 390 px.
+   Every rule below fixes something that audit actually flagged, not a guess.
+   The target floor is 44px, which is the interaction size both Apple's and
+   Google's guidance land on and comfortably clears the WCAG 2.5.8 minimum
+   of 24px. It matters more here than in most apps: a participant taps a
+   Likert option 65 times, and a mis-tap is not an annoyance, it is a wrong
+   data point that nothing downstream can detect or correct.
+   =========================================================================== */
+
+/* Consent checkboxes were rendering at the browser default 13x13. Three of
+   them are REQUIRED to proceed, so a missed tap reads as a refusal to
+   consent — the worst possible place for a fiddly control. */
+.check input[type="checkbox"] {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  margin-top: 0;
+  cursor: pointer;
+}
+.check { align-items: center; min-height: 48px; }
+
+@media (max-width: 700px) {
+  /* Feed decision buttons: tapped ten times each session. */
+  .mini-chip { padding: 12px 14px; font-size: 13.5px; min-height: 44px; border-radius: 11px; }
+  .sim-choices { width: 100%; flex-direction: column; }
+  .sim-choices .mini-chip { width: 100%; text-align: left; }
+  .link-btn { padding: 12px 4px; min-height: 44px; margin-left: 0; font-size: 13.5px; }
+  .sim-actions { flex-direction: column; align-items: stretch; gap: 4px; }
+
+  /* Chips wrap to full width rather than being squeezed onto shared rows. */
+  .chip { min-height: 44px; display: flex; align-items: center; }
+  .chip-row { gap: 8px; }
+
+  /* Small print that the audit flagged as under 11px. */
+  .page-source-tag { font-size: 11px; }
+  .open-count { font-size: 11.5px; }
+  .trend-chip { font-size: 11px; }
+  .sim-metrics-inline { font-size: 12px; }
+
+  /* The sticky progress bar was translucent enough for page text to read
+     through it while scrolling. */
+  .progress-wrap { background: #fff; }
+
+  /* Section name and percentage collide on a narrow header. */
+  .progress-head { gap: 10px; align-items: baseline; }
+  .progress-section { font-size: 13px; line-height: 1.25; min-width: 0; overflow-wrap: anywhere; }
+  .progress-pct { flex: none; font-size: 12px; white-space: nowrap; }
+
+  /* Footer actions: stack so the primary button is full width and reachable. */
+  .screen-actions { flex-wrap: wrap; gap: 10px; }
+  .screen-actions .btn { min-height: 46px; }
+  .screen-actions .btn-primary { flex: 1 1 100%; order: 3; }
+  .answered-count { order: 2; margin-left: auto; }
+
+  /* Free-text boxes must not trigger iOS auto-zoom, which happens below 16px. */
+  .open-field textarea, input[type="text"], input[type="email"], select { font-size: 16px; }
+
+  .screen, .screen-matrix { padding: 20px 14px; }
+}
+
+@media (max-width: 430px) {
+  .screen, .screen-matrix { padding: 18px 11px; }
+  .screen-title { font-size: 1.32rem; line-height: 1.25; }
+  /* "33% complete" runs off the edge next to a long section name. The word
+     carries no information the number does not, so drop it. */
+  .progress-pct-word { display: none; }
+}
+
+/* Results screen on small screens. Participants spend real time on this page
+   — it is the thing they were promised in return for fifteen minutes — so the
+   tabs and score tiles get the same treatment as the questionnaire. */
+@media (max-width: 700px) {
+  .pill { padding: 12px 16px; min-height: 44px; font-size: 13px; }
+  .pill-tabs { gap: 7px; padding-left: 14px; padding-right: 14px; overflow-x: auto; }
+  .tile-range { font-size: 11.5px; }
+  .panel { padding: 20px 14px 8px; }
+  .score-row { gap: 10px; }
+}
+
+/* Ethics-committee roster on the consent screen. */
+.consent-list {
+  margin: 8px 0 10px;
+  padding-left: 18px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--ink, #1e293b);
+}
+.consent-list li { margin-bottom: 4px; overflow-wrap: anywhere; }
+
+/* The consent body is a scroll box. At 340px on a phone that is a letterbox,
+   and a cramped box is a real disincentive to actually read a consent form —
+   which is the one document in the study that has to be read. Give it room. */
+@media (max-width: 700px) {
+  .consent-body { max-height: 58vh; padding: 16px 15px; }
+  .consent-sec p { font-size: 14px; }
+  .consent-sec h4 { font-size: 14.5px; }
+}
+
+/* Submission failure: a plain-language message and a retry, not a status code. */
+.submit-error {
+  margin-top: 14px;
+  padding: 14px 16px;
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  border-radius: 12px;
+}
+.submit-error p { margin: 0 0 10px; font-size: 13.5px; line-height: 1.55; color: #991b1b; }
+.submit-error .btn { min-height: 44px; }

@@ -15,8 +15,10 @@ import fs from "fs";
 import { fileURLToPath } from "url";
 import { getFeed, listSources } from "./feedSources.js";
 import { addSubmission, getAggregate, addSurvey, getSurveyAggregate } from "./store.js";
-import { addResponse, deleteResponse, getResponseAggregate, exportCsv, exportFeedCsv } from "./responses.js";
+import { addResponse, deleteResponse, getResponseAggregate, exportCsv, exportFeedCsv, readAllResponses } from "./responses.js";
+import { countCells, quotaDecision, quotaReport } from "./quotas.js";
 import { exportXlsxBuffer } from "./excel.js";
+import { readEthicsConfig, readiness, readinessAsync } from "./config.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -28,6 +30,25 @@ app.use(express.json({ limit: "2mb" }));
 // Simple health check — open http://localhost:4000/api/health to test.
 app.get("/api/health", (_req, res) => {
   res.json({ ok: true, message: "Server is running 🎉" });
+});
+
+// Research-governance configuration, read at runtime from the environment so
+// it can be set in the hosting dashboard without a rebuild.
+app.get("/api/config", (_req, res) => {
+  res.json({ ethics: readEthicsConfig() });
+});
+
+// Deployment readiness — what is still missing before live collection.
+// Safe to expose: it reports which variables are unset, never their values.
+app.get("/api/readiness", async (_req, res) => {
+  // Awaits a real database ping, so this endpoint answers the only question
+  // that matters before recruiting: will a submitted response actually be
+  // kept? Takes up to ~8s when the database is unreachable.
+  try {
+    res.json(await readinessAsync());
+  } catch (err) {
+    res.status(500).json({ ready: false, error: err.message });
+  }
 });
 
 // List the available feed sources (used by the UI dropdown).
@@ -88,13 +109,93 @@ app.get("/api/survey-results", async (_req, res) => {
 // RESEARCH ENDPOINTS (instrument version 2.0 — validated scales)
 // ===========================================================================
 
+// ---------------------------------------------------------------------------
+// Quota control
+// ---------------------------------------------------------------------------
+// Checked BEFORE the questionnaire, so nobody completes fifteen minutes of it
+// only to be told their cell was already full.
+app.post("/api/quota-check", async (req, res) => {
+  try {
+    const { gender, age, location } = req.body || {};
+    const counted = countCells(await readAllResponses());
+    res.json(quotaDecision({ gender, age, location }, counted));
+  } catch (err) {
+    // Never block a participant because the quota service failed. A quota is a
+    // sampling convenience; refusing a willing volunteer over a server error
+    // is a worse outcome than a slightly over-filled cell.
+    res.json({ allowed: true, full: [], degraded: true, error: err.message });
+  }
+});
+
+// Researcher-facing recruitment progress. Protected: cell counts reveal how
+// the sample is composed and are not for participants.
+app.get("/api/quota-report", async (req, res) => {
+  const key = process.env.RESEARCHER_KEY;
+  if (!key) return res.status(503).json({ error: "RESEARCHER_KEY is not set." });
+  if (req.query.key !== key) return res.status(403).json({ error: "Forbidden" });
+  try {
+    res.json(quotaReport(await readAllResponses()));
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Save one completed assessment (item-level answers + derived scores).
 app.post("/api/response", async (req, res) => {
   try {
-    const saved = await addResponse(req.body || {});
-    res.json({ ok: true, participantId: saved.participantId, wave: saved.wave });
+    const body = req.body || {};
+    const a = body?.raw?.answers || {};
+
+    // Second quota check. Two participants can clear the pre-questionnaire
+    // check concurrently, so the cell can fill while someone is answering.
+    // The response is still STORED — discarding a completed questionnaire
+    // would waste a volunteer's fifteen minutes — but it is marked as
+    // over-quota so it can be excluded from the primary analysis sample.
+    let overQuota = null;
+    try {
+      const counted = countCells(await readAllResponses());
+      const decision = quotaDecision(
+        { gender: a.gender, age: a.elig_age, location: a.city },
+        counted
+      );
+      if (!decision.allowed) overQuota = decision.full.map((f) => f.dimension);
+    } catch { /* quota service unavailable — store the response regardless */ }
+
+    // Validate BEFORE touching storage, so a bad payload and a broken database
+    // cannot produce the same status code. 400 must mean "your request was
+    // wrong"; it must never mean "our database is down".
+    if (!body.raw || !body.scored) {
+      return res.status(400).json({
+        ok: false,
+        error: "Both `raw` and `scored` are required.",
+        hint: "This is a client bug, not a network problem — the assessment did not finish scoring before submitting.",
+      });
+    }
+
+    const saved = await addResponse({ ...body, overQuota });
+
+    return res.json({
+      ok: true,
+      participantId: saved.participantId,
+      wave: saved.wave,
+      overQuota,
+      storedIn: saved.storedIn,
+      // Present only when the database was unreachable and the response went
+      // to the volatile container filesystem instead.
+      storageWarning: saved.storageWarning || null,
+    });
   } catch (err) {
-    res.status(400).json({ ok: false, error: err.message });
+    // Anything reaching here is a SERVER-side failure. Report it as one, log
+    // it so it is visible in the Render logs, and tell the client it is worth
+    // retrying — a 400 tells the client the opposite, and the participant's
+    // answers are then thrown away for no reason.
+    console.error("[/api/response] submission failed:", err?.stack || err);
+    return res.status(503).json({
+      ok: false,
+      retryable: true,
+      error: "The server could not store your response just now.",
+      detail: err?.message || String(err),
+    });
   }
 });
 

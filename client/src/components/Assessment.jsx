@@ -89,7 +89,14 @@ function MatrixRow({ item, scale, value, onChange, index }) {
             title={label}
             className={"mx-dot" + (value === i + 1 ? " mx-on" : "")}
             onClick={() => onChange(i + 1)}
-          />
+          >
+            <span className="mx-dot-face" />
+            {/* Visible on narrow screens only. The sticky anchor header is
+                hidden there, and five unlabelled circles are not a scale —
+                an unlabelled midpoint is a direct invitation to respond at
+                random, which is a data-quality problem, not a cosmetic one. */}
+            <span className="mx-dot-label">{label}</span>
+          </button>
         ))}
       </div>
     </div>
@@ -111,7 +118,7 @@ function MatrixHead({ scale }) {
   );
 }
 
-function ChoiceRow({ item, value, onChange, index }) {
+function ChoiceRow({ item, value, onChange, index, required }) {
   const isMulti = item.type === "multi";
   const selected = isMulti ? (Array.isArray(value) ? value : []) : value;
   const toggle = (opt) => {
@@ -124,6 +131,7 @@ function ChoiceRow({ item, value, onChange, index }) {
       <div className="q-text">
         <span className="q-num">{index}</span>
         {item.q}
+        {required && <span className="q-req" title="Required">*</span>}
         {isMulti && <span className="q-hint">Choose all that apply</span>}
       </div>
       <div className="chip-row">
@@ -217,7 +225,7 @@ function Welcome({ onNext, onLearnMore }) {
       </p>
       <div className="hero-stats">
         <div><strong>{ITEM_COUNT}</strong><span>questions</span></div>
-        <div><strong>12–15</strong><span>minutes</span></div>
+        <div><strong>8–12</strong><span>minutes</span></div>
         <div><strong>100%</strong><span>anonymous</span></div>
       </div>
       <div className="hero-actions">
@@ -233,7 +241,7 @@ function About({ onNext, onBack }) {
   const cards = [
     { icon: "🧪", h: "Built on validated scales", p: "Every question is taken or adapted from a published, peer-reviewed instrument — MAAS, the CFPB Financial Well-Being Scale, the Lusardi–Mitchell literacy questions and validated behavioural-bias scales." },
     { icon: "📱", h: "A feed, not a form", p: "Part of the assessment is a short simulated social media feed. You react to posts the way you normally would. Every post in it is fictional." },
-    { icon: "📊", h: "You get a real report", p: "At the end you see your behavioural bias profile, your social media influence score, mindfulness and financial well-being — and can download it." },
+    { icon: "📊", h: "You get a real report", p: "At the end you see your behavioural bias profile, your social media influence score and your financial well-being — and can download it." },
     { icon: "🔒", h: "Anonymous by design", p: "No name, no email, no IP address. A random code links your answers together and nothing else." },
   ];
   return (
@@ -262,10 +270,16 @@ function Consent({ answers, setAnswer, onNext, onBack }) {
     <div className="screen">
       <h2 className="screen-title">{CONSENT.icon} {CONSENT.title}</h2>
       <div className="consent-body">
-        {CONSENT.sections.map((s) => (
+        {CONSENT.getSections().map((s) => (
           <div key={s.h} className="consent-sec">
             <h4>{s.h}</h4>
-            <p>{s.p}</p>
+            {s.p && <p>{s.p}</p>}
+            {s.list?.length > 0 && (
+              <ul className="consent-list">
+                {s.list.map((line) => <li key={line}>{line}</li>)}
+              </ul>
+            )}
+            {s.after && <p>{s.after}</p>}
           </div>
         ))}
       </div>
@@ -310,18 +324,63 @@ function Gate({ block, answers, setAnswer, onNext, onBack }) {
   );
 }
 
-function ChoiceBlock({ block, answers, setAnswer, onNext, onBack }) {
+function isAnswered(item, value) {
+  if (item.type === "multi") return Array.isArray(value) && value.length > 0;
+  return value !== null && value !== undefined && value !== "";
+}
+
+function ChoiceBlock({ block, step, answers, setAnswer, onNext, onBack, busy }) {
+  // A block can require every item (social media use), or an individual item
+  // can be marked required (gender, location — both drive recruitment quotas).
+  const requireAll = step?.requireAll || block.requireAll;
+  const required = block.items.filter((i) => requireAll || i.required);
+  const missing = required.filter((i) => !isAnswered(i, answers[i.id]));
+  const complete = missing.length === 0;
+
   return (
     <div className="screen">
       <h2 className="screen-title">{block.icon} {block.title}</h2>
       {block.note && <p className="screen-note">{block.note}</p>}
       {block.items.map((item, i) => (
-        <ChoiceRow key={item.id} item={item} index={i + 1} value={answers[item.id]} onChange={(v) => setAnswer(item.id, v)} />
+        <ChoiceRow
+          key={item.id} item={item} index={i + 1}
+          value={answers[item.id]}
+          required={requireAll || item.required}
+          onChange={(v) => setAnswer(item.id, v)}
+        />
       ))}
+      <SourceNote step={step} block={block} />
       <div className="screen-actions">
         <button className="btn btn-ghost" onClick={onBack}>Back</button>
-        <button className="btn btn-primary" onClick={onNext}>Continue →</button>
+        {!complete && (
+          <span className="answered-count">
+            {missing.length} {missing.length === 1 ? "answer" : "answers"} needed
+          </span>
+        )}
+        <button className="btn btn-primary" disabled={!complete || busy} onClick={onNext}>
+          {busy ? "Checking…" : "Continue →"}
+        </button>
       </div>
+    </div>
+  );
+}
+
+/**
+ * On-page attribution. Every questionnaire screen names the published
+ * instrument it is adapted from, so provenance is visible to the participant
+ * and to an examiner without going to an appendix.
+ */
+function SourceNote({ step, block }) {
+  const line = step?.sourceLine || block?.sourceLine;
+  const cites = step?.citations || [];
+  if (!line && !cites.length) return null;
+  return (
+    <div className="page-source">
+      <span className="page-source-tag">Source</span>
+      {line && <p>{line}</p>}
+      {cites.length > 0 && (
+        <ul>{cites.map((c) => <li key={c}>{c}</li>)}</ul>
+      )}
     </div>
   );
 }
@@ -341,8 +400,12 @@ function LikertBlock({ step, answers, setAnswer, onNext, onBack, seed, onOrder }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step.id]);
 
-  const done = all.filter((i) => answers[i.id] != null).length;
-  const complete = done === all.length;
+  // Criterion / follow-up items rendered below the matrix on the same page.
+  const tail = step.tail || [];
+  const total = all.length + tail.length;
+  const done = all.filter((i) => answers[i.id] != null).length
+    + tail.filter((i) => answers[i.id] != null).length;
+  const complete = done === total;
   // A matrix only works when every row shares one set of anchors.
   const isMatrix = step.layout === "matrix" && new Set(groups.map((g) => g.scale)).size === 1;
   let counter = 0;
@@ -371,11 +434,28 @@ function LikertBlock({ step, answers, setAnswer, onNext, onBack, seed, onOrder }
           </div>
         );
       })}
+
+      {step.sourceLine || step.citations ? null : null}
+      {tail.length > 0 && (
+        <div className="q-group q-tail">
+          {step.tailNote && <p className="q-stem">{step.tailNote}</p>}
+          {tail.map((item) => {
+            counter += 1;
+            return (
+              <ChoiceRow key={item.id} item={item} index={counter}
+                value={answers[item.id]} onChange={(v) => setAnswer(item.id, v)} />
+            );
+          })}
+        </div>
+      )}
+
+      <SourceNote step={step} />
+
       <div className="screen-actions">
         <button className="btn btn-ghost" onClick={onBack}>Back</button>
-        <span className="answered-count">{done} / {all.length} answered</span>
+        <span className="answered-count">{done} / {total} answered</span>
         <button className="btn btn-primary" disabled={!complete} onClick={onNext}>
-          {complete ? "Continue →" : `${all.length - done} left`}
+          {complete ? "Continue →" : `${total - done} left`}
         </button>
       </div>
     </div>
@@ -390,6 +470,7 @@ function CfpbBlock({ step, answers, setAnswer, onNext, onBack }) {
       <h2 className="screen-title">💰 {step.title}</h2>
       <p className="screen-note">
         The first six ask how well a statement describes you. The last four ask how often it applies.
+        {step.overlapNote}
       </p>
       {step.items.map((item, i) => (
         <div key={item.id}>
@@ -398,6 +479,7 @@ function CfpbBlock({ step, answers, setAnswer, onNext, onBack }) {
           <CfpbRow item={item} index={i + 1} value={answers[item.id]} onChange={(v) => setAnswer(item.id, v)} />
         </div>
       ))}
+      <SourceNote step={step} />
       <div className="screen-actions">
         <button className="btn btn-ghost" onClick={onBack}>Back</button>
         <span className="answered-count">{done} / {step.items.length} answered</span>
@@ -409,19 +491,65 @@ function CfpbBlock({ step, answers, setAnswer, onNext, onBack }) {
 
 function QuizBlock({ step, answers, setAnswer, onNext, onBack }) {
   const done = step.items.filter((i) => answers[i.id] != null).length;
+  const complete = done === step.items.length;
+
+  // Skipping is recorded as an explicit flag rather than left as an absence.
+  // A skipped quiz and an unanswered one look identical in the data otherwise,
+  // and a skip must never be analysed as a score of zero.
+  function skip() {
+    setAnswer("literacy_skipped", true);
+    onNext();
+  }
+
   return (
     <div className="screen">
       <h2 className="screen-title">{step.icon} {step.title}</h2>
       <p className="screen-note">{step.intro}</p>
+      {step.skippable && (
+        <p className="screen-note screen-note-soft">
+          This section is optional. You can skip it and still see your results.
+        </p>
+      )}
       {step.items.map((item, i) => (
         <QuizRow key={item.id} item={item} index={i + 1} value={answers[item.id]} onChange={(v) => setAnswer(item.id, v)} />
       ))}
+      <SourceNote step={step} />
       <div className="screen-actions">
         <button className="btn btn-ghost" onClick={onBack}>Back</button>
         <span className="answered-count">{done} / {step.items.length} answered</span>
-        <button className="btn btn-primary" disabled={done !== step.items.length} onClick={onNext}>
+        {step.skippable && !complete && (
+          <button className="btn btn-ghost" onClick={skip}>{step.skipLabel || "Skip"} →</button>
+        )}
+        <button className="btn btn-primary" disabled={!complete} onClick={onNext}>
           See my results →
         </button>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Shown when the participant's quota cell is already full.
+ * Worded so that it reads as "we have enough people like you", not as a
+ * rejection — because that is what it actually is, and a volunteer who is
+ * turned away deserves to understand why.
+ */
+function QuotaFull({ decision, onExit }) {
+  const dims = (decision.full || []).map((f) => f.label.toLowerCase());
+  return (
+    <div className="screen">
+      <h2 className="screen-title">🙏 Thank you — this group is already full</h2>
+      <p className="screen-note">
+        {decision.studyFull
+          ? "This study has now collected all the responses it planned for, so data collection is closed."
+          : `We are recruiting a balanced sample, and we already have all the responses we need for your ${dims.join(" and ")} group.`}
+      </p>
+      <p className="screen-note">
+        Nothing you entered has been saved. We are grateful you were willing to take part —
+        you are very welcome to explore the learning section instead.
+      </p>
+      <div className="screen-actions">
+        <button className="btn btn-primary" onClick={onExit}>Explore the learning section →</button>
       </div>
     </div>
   );
@@ -431,9 +559,12 @@ function QuizBlock({ step, answers, setAnswer, onNext, onBack }) {
 // Controller
 // ===========================================================================
 export default function Assessment({ onExit, onComplete, onSessionChange }) {
-  const steps = useMemo(() => buildJourney(), []);
   const [i, setI] = useState(0);
   const [session, setSession, setAnswer] = useSession();
+  // The journey depends on the participant code: the two well-being scales
+  // are counterbalanced from it, so the same person always gets the same
+  // order across refreshes.
+  const steps = useMemo(() => buildJourney(session.participantId), [session.participantId]);
   const topRef = useRef(null);
 
   // Keep the shell's copy of the session in step, so the hub can read it.
@@ -448,6 +579,14 @@ export default function Assessment({ onExit, onComplete, onSessionChange }) {
     topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [i]);
 
+  // Store the counterbalance allocation as data, so order can be entered as a
+  // covariate rather than assumed away.
+  useEffect(() => {
+    const order = steps.find((st) => st.wbOrder)?.wbOrder;
+    if (order && session.answers.fwb_order !== order) setAnswer("fwb_order", order);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [steps]);
+
   // Record the order items were presented in, for order-effect analysis.
   function recordOrder(stepId, ids) {
     setSession((sn) =>
@@ -457,7 +596,41 @@ export default function Assessment({ onExit, onComplete, onSessionChange }) {
     );
   }
 
-  const next = () => setI((n) => Math.min(n + 1, steps.length - 1));
+  // --- recruitment quota ---------------------------------------------------
+  // Checked once, on leaving the profile screen — that is the first point at
+  // which gender, age and location are all known, and it is before the
+  // participant has invested any real time in the questionnaire.
+  const [quotaBlock, setQuotaBlock] = useState(null);
+  const [quotaChecking, setQuotaChecking] = useState(false);
+
+  async function checkQuota() {
+    const a = session.answers || {};
+    try {
+      const r = await fetch("/api/quota-check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ gender: a.gender, age: a.elig_age, location: a.city }),
+      });
+      if (!r.ok) return true;
+      const d = await r.json();
+      if (d.allowed === false) { setQuotaBlock(d); return false; }
+      return true;
+    } catch {
+      // Offline or the server is unreachable: let the participant continue.
+      // Losing a willing volunteer to a network error is the worse failure.
+      return true;
+    }
+  }
+
+  const next = async () => {
+    if (step.id === "profile") {
+      setQuotaChecking(true);
+      const ok = await checkQuota();
+      setQuotaChecking(false);
+      if (!ok) return;
+    }
+    setI((n) => Math.min(n + 1, steps.length - 1));
+  };
   const back = () => setI((n) => Math.max(n - 1, 0));
 
   const restart = () => {
@@ -477,13 +650,21 @@ export default function Assessment({ onExit, onComplete, onSessionChange }) {
 
   const showChrome = step.chrome !== false;
 
+  if (quotaBlock) {
+    return (
+      <div className="assess" ref={topRef}>
+        <QuotaFull decision={quotaBlock} onExit={onExit} />
+      </div>
+    );
+  }
+
   return (
     <div className="assess" ref={topRef}>
       {showChrome && (
         <div className="progress-wrap">
           <div className="progress-head">
             <span className="progress-section">{step.icon} {step.section}</span>
-            <span className="progress-pct">{pct}% complete</span>
+            <span className="progress-pct">{pct}%<span className="progress-pct-word"> complete</span></span>
           </div>
           <div className="progress-bar">
             <div className="progress-fill" style={{ width: `${pct}%` }} />
@@ -501,7 +682,7 @@ export default function Assessment({ onExit, onComplete, onSessionChange }) {
           <Gate block={step.block} answers={session.answers} setAnswer={setAnswer} onNext={next} onBack={back} />
         )}
         {step.kind === "choices" && (
-          <ChoiceBlock block={step.block} answers={session.answers} setAnswer={setAnswer} onNext={next} onBack={back} />
+          <ChoiceBlock block={step.block} step={step} busy={quotaChecking} answers={session.answers} setAnswer={setAnswer} onNext={next} onBack={back} />
         )}
         {step.kind === "likert" && (
           <LikertBlock step={step} answers={session.answers} setAnswer={setAnswer}
@@ -516,7 +697,9 @@ export default function Assessment({ onExit, onComplete, onSessionChange }) {
         {step.kind === "feed" && (
           <FeedSim
             session={session}
-            arm={ARMS[session.arm]}
+            arm={ARMS[session.arm] || ARMS.control}
+            answers={session.answers}
+            setAnswer={setAnswer}
             onComplete={(trials) => {
               setSession((s) => ({ ...s, feedTrials: trials }));
               next();

@@ -176,50 +176,39 @@ export const DECISIONS = [
 export const ARMS = {
   control: {
     id: "control",
-    label: "Control",
-    description: "Feed presented with no additional treatment.",
-    showDisclosure: false,
-    showPrebunk: false,
-    showPause: false,
-  },
-  disclosure: {
-    id: "disclosure",
-    label: "Disclosure",
-    description:
-      "A paid-promotion / risk disclosure banner is attached to each promotional post (OSC, 2024, disclosure arm).",
-    showDisclosure: true,
-    showPrebunk: false,
-    showPause: false,
-  },
-  prebunk: {
-    id: "prebunk",
-    label: "Prebunking",
-    description:
-      "A short inoculation screen naming the persuasion techniques is shown BEFORE the feed (OSC, 2024, inoculation arm).",
-    showDisclosure: false,
-    showPrebunk: true,
-    showPause: false,
-  },
-  mindfulPause: {
-    id: "mindfulPause",
-    label: "Mindful pause",
-    description:
-      "A brief attention-to-present prompt with a forced 10-second delay before the decision is confirmed. Tests whether state mindfulness moderates feed-driven action — the study's own contribution.",
-    showDisclosure: false,
-    showPrebunk: false,
-    showPause: true,
-    pauseSeconds: 10,
+    label: "Standard feed",
+    description: "The feed is shown as it is, with no banner or extra screen attached to any post.",
   },
 };
 
-export const PREBUNK_CONTENT = {
-  title: "Before you scroll — four things to watch for",
-  points: [
-    { icon: "👥", name: "Social proof", text: "Large numbers of likes make a claim feel verified. They don't verify anything." },
-    { icon: "⏳", name: "Urgency", text: "Deadlines exist to stop you checking. A good investment is still good tomorrow." },
-    { icon: "📈", name: "Past returns", text: "A run of good years is the weakest possible evidence about the next one." },
-    { icon: "🎖️", name: "Borrowed authority", text: "Confidence, jargon and a blue tick are not the same as a track record." },
-  ],
+// ---------------------------------------------------------------------------
+// RETIRED ARMS — kept for the record, not administered.
+//
+//   disclosure   — a "this may be a paid promotion" banner on each promotional
+//                  post. REMOVED at the researcher's instruction: nothing in
+//                  this study is paid or sponsored, so a banner implying that
+//                  it might be would have been inaccurate.
+//   prebunk      — an inoculation screen shown BEFORE the feed. Removed
+//                  because the feed was to be a single screen.
+//   mindfulPause — a 10-second forced delay before a decision was confirmed.
+//                  Removed with the rest of the mindfulness layer.
+//
+// ⚠️ CONSEQUENCE. With only one arm left there is no longer a randomised
+// manipulation, so the study is no longer an experiment. The feed still
+// yields behavioural measures — what people would do, how fast, and whether
+// they checked — but any BETWEEN-GROUP causal claim is gone. The design must
+// now be described as a cross-sectional survey with an embedded behavioural
+// task, not as a randomised experiment.
+//
+// It also means the study no longer withholds anything from participants, so
+// the consent form's "one thing you will be told at the end" clause and the
+// deception section of the debrief have been removed rather than left in
+// place describing something that no longer happens.
+// ---------------------------------------------------------------------------
+export const RETIRED_ARMS = {
+  disclosure: { id: "disclosure", label: "Disclosure banner", showDisclosure: true },
+  prebunk: { id: "prebunk", label: "Prebunking", showPrebunk: true },
+  mindfulPause: { id: "mindfulPause", label: "Mindful pause", showPause: true, pauseSeconds: 10 },
 };
 
 /**
