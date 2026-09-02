@@ -18,7 +18,7 @@ import { addSubmission, getAggregate, addSurvey, getSurveyAggregate } from "./st
 import { addResponse, deleteResponse, getResponseAggregate, exportCsv, exportFeedCsv, readAllResponses } from "./responses.js";
 import { countCells, quotaDecision, quotaReport } from "./quotas.js";
 import { exportXlsxBuffer } from "./excel.js";
-import { readEthicsConfig, readiness, readinessAsync } from "./config.js";
+import { readEthicsConfig, readiness } from "./config.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -40,15 +40,8 @@ app.get("/api/config", (_req, res) => {
 
 // Deployment readiness — what is still missing before live collection.
 // Safe to expose: it reports which variables are unset, never their values.
-app.get("/api/readiness", async (_req, res) => {
-  // Awaits a real database ping, so this endpoint answers the only question
-  // that matters before recruiting: will a submitted response actually be
-  // kept? Takes up to ~8s when the database is unreachable.
-  try {
-    res.json(await readinessAsync());
-  } catch (err) {
-    res.status(500).json({ ready: false, error: err.message });
-  }
+app.get("/api/readiness", (_req, res) => {
+  res.json(readiness());
 });
 
 // List the available feed sources (used by the UI dropdown).
@@ -161,40 +154,13 @@ app.post("/api/response", async (req, res) => {
       if (!decision.allowed) overQuota = decision.full.map((f) => f.dimension);
     } catch { /* quota service unavailable — store the response regardless */ }
 
-    // Validate BEFORE touching storage, so a bad payload and a broken database
-    // cannot produce the same status code. 400 must mean "your request was
-    // wrong"; it must never mean "our database is down".
-    if (!body.raw || !body.scored) {
-      return res.status(400).json({
-        ok: false,
-        error: "Both `raw` and `scored` are required.",
-        hint: "This is a client bug, not a network problem — the assessment did not finish scoring before submitting.",
-      });
-    }
-
     const saved = await addResponse({ ...body, overQuota });
-
-    return res.json({
-      ok: true,
-      participantId: saved.participantId,
-      wave: saved.wave,
-      overQuota,
-      storedIn: saved.storedIn,
-      // Present only when the database was unreachable and the response went
-      // to the volatile container filesystem instead.
-      storageWarning: saved.storageWarning || null,
-    });
-  } catch (err) {
-    // Anything reaching here is a SERVER-side failure. Report it as one, log
-    // it so it is visible in the Render logs, and tell the client it is worth
-    // retrying — a 400 tells the client the opposite, and the participant's
-    // answers are then thrown away for no reason.
-    console.error("[/api/response] submission failed:", err?.stack || err);
-    return res.status(503).json({
+    res.json({ ok: true, participantId: saved.participantId, wave: saved.wave, overQuota });
+    } catch (err) {
+    console.error("[POST /api/response] Save failed:", err);
+    res.status(500).json({
       ok: false,
-      retryable: true,
-      error: "The server could not store your response just now.",
-      detail: err?.message || String(err),
+      error: err?.message || "Unable to save research response."
     });
   }
 });
@@ -284,7 +250,7 @@ if (fs.existsSync(clientDist)) {
   console.log("[server] serving built client from /client/dist");
 }
 
-app.listen(PORT, () => {
+app.listen(PORT,"0.0.0.0", () => {
   console.log(`\n✅ Backend server running at http://localhost:${PORT}`);
   console.log(`   Try: http://localhost:${PORT}/api/health\n`);
 });
