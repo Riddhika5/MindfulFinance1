@@ -10,6 +10,7 @@
 // ===========================================================================
 
 import "dotenv/config";import express from "express";
+import cors from "cors";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
@@ -22,6 +23,12 @@ import { readEthicsConfig, readiness } from "./config.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
+app.use(cors({
+  origin: [
+    "https://mindfulfinance1-3.onrender.com",
+    "http://localhost:5173"
+  ]
+}));
 const PORT = process.env.PORT || 4000;
 
 // Item-level payloads are larger than the 100kb express default.
