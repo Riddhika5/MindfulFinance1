@@ -34,6 +34,12 @@ const PORT = process.env.PORT || 4000;
 // Item-level payloads are larger than the 100kb express default.
 app.use(express.json({ limit: "2mb" }));
 
+app.get("/api/config", (req, res) => {
+  res.json({
+    ethics: readEthicsConfig()
+  });
+});
+
 // Simple health check — open http://localhost:4000/api/health to test.
 app.get("/api/health", (_req, res) => {
   res.json({ ok: true, message: "Server is running 🎉" });
