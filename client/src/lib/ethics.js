@@ -111,7 +111,7 @@ export const ETHICS = {
  */
 export async function loadRuntimeEthics() {
   try {
-    const r = await fetch("/api/config");
+    const r = await fetch("https://mindfulfinance1-3-server.onrender.com/api/config");
     if (!r.ok) return false;
     const d = await r.json();
     if (d?.ethics && typeof d.ethics === "object") {
