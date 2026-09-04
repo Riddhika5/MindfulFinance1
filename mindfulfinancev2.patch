@@ -1158,7 +1158,7 @@ index 0000000..fed4505
 +    setSubmitting(true);
 +    setError(null);
 +    try {
-+      const r = await fetch("/api/response", {
++ const r = await fetch("https://mindfulfinance1-3-server.onrender.com/api/response", {
 +        method: "POST",
 +        headers: { "Content-Type": "application/json" },
 +        body: JSON.stringify({ raw: session, scored: results }),
