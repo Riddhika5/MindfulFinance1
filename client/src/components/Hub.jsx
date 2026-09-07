@@ -71,7 +71,9 @@ export default function Hub({ session, onRestart, onExit, onResumeAssessment, co
   async function loadFeed(which = source) {
     setLoadingFeed(true);
     try {
-      const r = await fetch("https://mindfulfinance1-3-server.onrender.com/api/feed?source=${encodeURIComponent(which)}`);
+      const r = await fetch(
+  `https://mindfulfinance1-3-server.onrender.com/api/feed?source=${encodeURIComponent(which)}`
+);
       const d = await r.json();
       setPosts(
         (d.posts || []).map((p) => {
