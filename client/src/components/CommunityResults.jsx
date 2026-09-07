@@ -17,7 +17,7 @@ export default function CommunityResults({ snapshot, canShare }) {
   async function loadResults() {
     setLoading(true);
     try {
-      const r = await fetch("/api/results");
+      const r = await fetch("https://mindfulfinance1-3-server.onrender.com/api/results");
       setResults(await r.json());
     } catch {
       setResults({ error: "Could not reach the server." });
@@ -33,7 +33,7 @@ export default function CommunityResults({ snapshot, canShare }) {
   async function share() {
     setStatus("Sending…");
     try {
-      const res = await fetch("/api/submit", {
+      const res = await fetch("https://mindfulfinance1-3-server.onrender.com/api/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...snapshot, nickname }),

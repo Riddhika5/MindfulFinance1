@@ -40,7 +40,7 @@ export default function Survey() {
 
   async function loadResults() {
     try {
-      const r = await fetch("/api/survey-results");
+      const r = await fetch("https://mindfulfinance1-3-server.onrender.com/api/survey-results");
       setResults(await r.json());
     } catch {
       setResults({ error: "Could not reach the server." });
@@ -62,7 +62,7 @@ export default function Survey() {
     setStatus("Sending…");
     const summary = scoreSurvey(answers);
     try {
-      const res = await fetch("/api/survey", {
+      const res = await fetch("https://mindfulfinance1-3-server.onrender.com/api/survey", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(summary),

@@ -606,7 +606,7 @@ export default function Assessment({ onExit, onComplete, onSessionChange }) {
   async function checkQuota() {
     const a = session.answers || {};
     try {
-      const r = await fetch("/api/quota-check", {
+      const r = await fetch("https://mindfulfinance1-3-server.onrender.com/api/quota-check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ gender: a.gender, age: a.elig_age, location: a.city }),

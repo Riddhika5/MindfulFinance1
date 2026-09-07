@@ -55,7 +55,7 @@ export function readSubmission() {
 export async function postResponse(payload) {
   let r;
   try {
-    r = await fetch("/api/response", {
+    r = await fetch("https://mindfulfinance1-3-server.onrender.com/api/response", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),

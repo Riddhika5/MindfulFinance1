@@ -21,7 +21,12 @@ function Withdraw({ participantId }) {
     )) return;
     setState("working");
     try {
-      const r = await fetch(`/api/response/${encodeURIComponent(participantId)}`, { method: "DELETE" });
+      const r = await fetch(
+  `https://mindfulfinance1-3-server.onrender.com/api/response/${encodeURIComponent(participantId)}`,
+  {
+    method: "DELETE"
+  }
+);
       if (!r.ok) throw new Error(`Server returned ${r.status}`);
       const d = await r.json();
       setState(d.deleted ? "done" : "notfound");

@@ -62,7 +62,7 @@ export default function Hub({ session, onRestart, onExit, onResumeAssessment, co
   );
 
   useEffect(() => {
-    fetch("/api/sources")
+    fetch("https://mindfulfinance1-3-server.onrender.com/api/sources")
       .then((r) => r.json())
       .then((d) => setSources(d.sources || []))
       .catch(() => setSources([{ name: "simulated", label: "Simulated reels" }]));
@@ -71,7 +71,7 @@ export default function Hub({ session, onRestart, onExit, onResumeAssessment, co
   async function loadFeed(which = source) {
     setLoadingFeed(true);
     try {
-      const r = await fetch(`/api/feed?source=${encodeURIComponent(which)}`);
+      const r = await fetch("https://mindfulfinance1-3-server.onrender.com/api/feed?source=${encodeURIComponent(which)}`);
       const d = await r.json();
       setPosts(
         (d.posts || []).map((p) => {
