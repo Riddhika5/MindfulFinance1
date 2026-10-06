@@ -21,6 +21,7 @@ import { detectBiases } from "../lib/biasEngine.js";
 import { computeScore } from "../lib/score.js";
 import { load, save } from "../lib/storage.js";
 import { scoreAll } from "../lib/scoring.js";
+import { api } from "../lib/api.js";
 
 const NAV = [
   { id: "results", icon: "📊", label: "My results" },
@@ -62,7 +63,7 @@ export default function Hub({ session, onRestart, onExit, onResumeAssessment, co
   );
 
   useEffect(() => {
-    fetch("https://mindfulfinance1-3-server.onrender.com/api/sources")
+    fetch(api("/api/sources"))
       .then((r) => r.json())
       .then((d) => setSources(d.sources || []))
       .catch(() => setSources([{ name: "simulated", label: "Simulated reels" }]));
@@ -72,7 +73,7 @@ export default function Hub({ session, onRestart, onExit, onResumeAssessment, co
     setLoadingFeed(true);
     try {
       const r = await fetch(
-  `https://mindfulfinance1-3-server.onrender.com/api/feed?source=${encodeURIComponent(which)}`
+  api(`/api/feed?source=${encodeURIComponent(which)}`)
 );
       const d = await r.json();
       setPosts(

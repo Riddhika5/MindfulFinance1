@@ -153,10 +153,8 @@ export async function addResponse({ raw, scored, overQuota = null }) {
     // --- derived scores (convenience; always re-derivable from answers) ----
     scores: {
       smi: scored.smfi?.score ?? null,
-      smiPerception: scored.smfi?.subscales?.perception?.score ?? null,
-      smiParasocial: scored.smfi?.subscales?.parasocial?.score ?? null,
-      smiTrust: scored.smfi?.subscales?.trust?.score ?? null,
-      smiAdoption: scored.smfi?.subscales?.adoption?.score ?? null,
+      smiSusceptibility: scored.smfi?.subscales?.susceptibility?.score ?? null,
+      smiDecisions: scored.smfi?.subscales?.decisions?.score ?? null,
       // Legacy key kept so older exports and saved waves still line up.
       smfi: scored.smfi?.score ?? null,
       biasIndex: scored.biases?.index ?? null,

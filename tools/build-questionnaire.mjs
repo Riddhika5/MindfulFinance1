@@ -9,7 +9,7 @@ import { SOURCES, SMI, SMFI_CRITERION, OPEN_ENDED, BIAS_CONSTRUCTS, MAAS, CFPB, 
 const L = [];
 const P = (s = "") => L.push(s);
 
-P("# MindfulFinance — Full Questionnaire (Instrument v3.5)");
+P("# MindfulFinance — Full Questionnaire (Instrument v3.9)");
 P();
 P("*Appendix-ready. Every item with its code, source and provenance level. Provenance: **verbatim** = published wording; **adapted** = published item re-anchored to this context; **contextual** = built from the source construct definition where no transferable wording exists.*");
 P();
@@ -57,17 +57,22 @@ P();
 P("**Source:** Ontario Securities Commission & The Decision Lab (2024), *Social media and retail investing: The rise of finfluencers*; usage battery reported alongside Ni, Chan & Cheung (2020).");
 P();
 
-P("## Section 4 — Social media influence (SMI)");
+P("## Section 4 — Social media influence on money decisions (SMI)");
 P();
-P("**12 items · 5-point agreement.** Anchored on a published, validated instrument rather than newly developed.");
+P(`**${SMI.items.length} items · 5-point agreement.** Re-scoped from investing to EVERYDAY MONEY — spending, buying, consumption and saving — and broadened from finance creators alone to the whole commercial surface of a feed: creators, advertising, brand marketing, celebrities and peers. Shortened from 12 items to ${SMI.items.length}.`);
 P();
-P(`**Source:** ${SOURCES.susis2023.citation}`);
+P("Two sub-dimensions:");
 P();
-P(`**Reliability reported in the source:** ${SOURCES.susis2023.reliability}`);
+P("- **Susceptibility** (SMI1–SMI4) — exposure to commercial content and how persuasive the participant finds it, across sources.");
+P("- **Decision influence** (SMI5–SMI8) — whether it actually moves spending, saving and the lifestyle they feel they should afford.");
 P();
-P("Items SMI1–SMI9 are the nine items of the SUSIS **SOCIAL_PERCEPTION** subscale (α = .829) — perception towards influencers, parasocial relationship, and consumer trust — re-anchored from influencers-in-general to finance creators. Items SMI10–SMI12 extend the scale into financial adoption, which SUSIS does not cover, and are flagged as an extension rather than as SUSIS items.");
+P(`**Parent scale:** ${SOURCES.bearden1989.citation}`);
 P();
-P("> The SUSIS **HARMFUL** subscale (16 items rating the promotion of violence, tobacco, alcohol and sexual content) is deliberately **not** administered. It is unrelated to financial decision making and would be inappropriate in this questionnaire.");
+P(`**Reliability reported in the parent:** ${SOURCES.bearden1989.reliability}`);
+P();
+P(`**Second parent (item SMI4):** ${SOURCES.susis2023.citation}`);
+P();
+P("> **Provenance, stated plainly.** The CSII measures susceptibility to the people you know; these items re-anchor it to the people, brands and advertisements in a feed. That is a contextual adaptation, not a validated transfer, so the scale must be reported as adapted and carry fresh EFA → CFA → HTMT in this sample. The published α values above belong to the parent, not to this version.");
 P();
 P("| Code | Sub-dimension | Item | Provenance |");
 P("|---|---|---|---|");
@@ -82,7 +87,7 @@ P();
 
 P("## Section 5 — Behavioural biases");
 P();
-P("**10 constructs · 34 items · one shared 5-point agreement scale.** Presented on three screens under the heading *Your decision-making style*, as a compact matrix, with item order randomised within each construct. Screen 1: following others and fear of missing out. Screen 2: how you weigh information. Screen 3: confidence, risk and reference points.");
+P("**10 constructs · 30 items, 3 per construct · one shared 5-point agreement scale.** Presented on three screens under the heading *Your decision-making style*, as a compact matrix, with item order randomised within each construct. **No construct name is shown to the participant.** Labelling a block \"Following the crowd\" tells people what is being measured and invites them to answer consistently with the label rather than with themselves (the consistency motif; Podsakoff et al., 2003). The grouping is preserved in the codebook, so scoring and CFA are unaffected. Screen 1: following others and fear of missing out. Screen 2: how you weigh information. Screen 3: confidence, risk and reference points.");
 P();
 for (const c of Object.values(BIAS_CONSTRUCTS)) {
   const s1 = SOURCES[c.src];

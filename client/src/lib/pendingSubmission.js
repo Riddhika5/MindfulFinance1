@@ -18,6 +18,8 @@
 // is a reachable database and a warm service.
 // ===========================================================================
 
+import { api } from "./api.js";
+
 export const PENDING_KEY = "mf_pending_submission";
 
 export function queueSubmission(payload) {
@@ -55,7 +57,7 @@ export function readSubmission() {
 export async function postResponse(payload) {
   let r;
   try {
-    r = await fetch("https://mindfulfinance1-3-server.onrender.com/api/response", {
+    r = await fetch(api("/api/response"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),

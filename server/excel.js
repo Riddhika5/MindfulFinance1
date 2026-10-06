@@ -84,14 +84,14 @@ function buildVariables() {
           values: it.options.join(" / "), source: SOURCES[it.src]?.citation || "" });
   }
 
-  // Social media influence (SUSIS-anchored)
+  // Social media influence on everyday money decisions
   SMI.items.forEach((it, n) => {
     add({ name: `SMI${n + 1}`, itemId: it.id, label: it.q, type: "number",
-          construct: "Social media influence (SUSIS)", subscale: it.sub,
+          construct: "Social media influence", subscale: it.sub,
           range: "1–5", values: SCALES.agree5.labels.map((l, i) => `${i + 1}=${l}`).join("; "),
           note: it.adapt === "adapted"
-            ? "SUSIS SOCIAL_PERCEPTION item, re-anchored from influencers-in-general to finance creators"
-            : "Extension item — not part of published SUSIS",
+            ? "Published item re-anchored to commercial influence on everyday money decisions"
+            : "Contextual item built from the parent scale's construct definition",
           source: SOURCES[it.src]?.citation || "" });
   });
 
@@ -192,11 +192,9 @@ function buildVariables() {
 
   // derived scores
   const SCORES = [
-    ["SMI_mean", "Social media influence, mean (SUSIS-anchored)", "1–5"],
-    ["SMI_percep", "SMI — perception towards influencers (SUSIS C1)", "1–5"],
-    ["SMI_parasoc", "SMI — parasocial relationship (SUSIS C3)", "1–5"],
-    ["SMI_trust", "SMI — consumer trust (SUSIS C4)", "1–5"],
-    ["SMI_adopt", "SMI — financial information adoption (extension)", "1–5"],
+    ["SMI_mean", "Social media influence on money decisions, mean", "1–5"],
+    ["SMI_susc", "SMI — exposure and susceptibility to commercial influence", "1–5"],
+    ["SMI_dec", "SMI — influence on spending, consumption and saving decisions", "1–5"],
     ...ALL_BIAS_IDS.map((k) => [`${BIAS_CONSTRUCTS[k].code}_mean`, `${BIAS_CONSTRUCTS[k].name}, subscale mean`, "1–5"]),
     ["BiasIndex", "Composite behavioural bias index (POMP)", "0–100"],
     ["BiasCognitive", "Cognitive biases (POMP mean)", "0–100"],
@@ -274,10 +272,8 @@ function valueFor(v, r) {
     case "DurationMin": return r.durationMs ? Number((r.durationMs / 60000).toFixed(2)) : null;
 
     case "SMI_mean": return s.smi ?? s.smfi ?? null;
-    case "SMI_percep": return s.smiPerception ?? null;
-    case "SMI_parasoc": return s.smiParasocial ?? null;
-    case "SMI_trust": return s.smiTrust ?? null;
-    case "SMI_adopt": return s.smiAdoption ?? null;
+    case "SMI_susc": return s.smiSusceptibility ?? null;
+    case "SMI_dec": return s.smiDecisions ?? null;
     case "BiasIndex": return s.biasIndex ?? null;
     case "BiasCognitive": return s.biasCognitive ?? null;
     case "BiasEmotional": return s.biasEmotional ?? null;

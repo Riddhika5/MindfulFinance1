@@ -12,6 +12,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { SURVEY_SECTIONS, SCALE_ITEMS, QUIZ_ITEMS, LIKERT, scoreSurvey } from "../lib/survey.js";
+import { api } from "../lib/api.js";
 
 export default function Survey() {
   const [answers, setAnswers] = useState({});
@@ -40,7 +41,7 @@ export default function Survey() {
 
   async function loadResults() {
     try {
-      const r = await fetch("https://mindfulfinance1-3-server.onrender.com/api/survey-results");
+      const r = await fetch(api("/api/survey-results"));
       setResults(await r.json());
     } catch {
       setResults({ error: "Could not reach the server." });
@@ -62,7 +63,7 @@ export default function Survey() {
     setStatus("Sending…");
     const summary = scoreSurvey(answers);
     try {
-      const res = await fetch("https://mindfulfinance1-3-server.onrender.com/api/survey", {
+      const res = await fetch(api("/api/survey"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(summary),

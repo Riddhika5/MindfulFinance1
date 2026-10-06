@@ -9,6 +9,7 @@
 
 import { useState } from "react";
 import { ETHICS, isConfigured, SUPPORT, needsSupport } from "../lib/ethics.js";
+import { api } from "../lib/api.js";
 
 function Withdraw({ participantId }) {
   const [state, setState] = useState("idle");
@@ -22,7 +23,7 @@ function Withdraw({ participantId }) {
     setState("working");
     try {
       const r = await fetch(
-  `https://mindfulfinance1-3-server.onrender.com/api/response/${encodeURIComponent(participantId)}`,
+  api(`/api/response/${encodeURIComponent(participantId)}`),
   {
     method: "DELETE"
   }

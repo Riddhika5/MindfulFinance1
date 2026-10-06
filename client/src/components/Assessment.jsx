@@ -14,6 +14,7 @@ import { assignArm, ARMS } from "../lib/scenarios.js";
 import FeedSim from "./FeedSim.jsx";
 import Results from "./Results.jsx";
 import { load, save } from "../lib/storage.js";
+import { api } from "../lib/api.js";
 
 // --- participant identity ---------------------------------------------------
 function newParticipantId() {
@@ -606,7 +607,7 @@ export default function Assessment({ onExit, onComplete, onSessionChange }) {
   async function checkQuota() {
     const a = session.answers || {};
     try {
-      const r = await fetch("https://mindfulfinance1-3-server.onrender.com/api/quota-check", {
+      const r = await fetch(api("/api/quota-check"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ gender: a.gender, age: a.elig_age, location: a.city }),

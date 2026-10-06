@@ -1,49 +1,23 @@
-MindfulFinance — v3.8
+MindfulFinance — v3.9
 =====================
+1. Unzip. Copy client/, server/ and tools/ over your project folder,
+   keeping the structure. Overwrite when asked.
+2. In PowerShell, inside the project folder:
+     npm run setup
+     npm run build
+     git add -A
+     git commit -m "v3.9 - shorter instrument, hidden construct labels, SMI re-scoped"
+     git push
 
-STEP 1 — FIX MONGODB (do this first; nothing else matters without it)
----------------------------------------------------------------------
-a) mongodb.com/cloud/atlas → free M0 cluster (pick Mumbai)
-b) Database Access  → add a user, password LETTERS AND NUMBERS ONLY
-                      (punctuation must be percent-encoded and is the
-                       commonest cause of a connection that never works)
-                    → Built-in Role: "Read and write to any database"
-c) Network Access   → Add IP Address → ALLOW ACCESS FROM ANYWHERE (0.0.0.0/0)
-                      Render's outbound IPs are not fixed on the free plan
-d) Connect → Drivers → copy the string
-e) TEST IT BEFORE PASTING IT ANYWHERE:
+WHAT CHANGED
+  Biases          34 -> 30 items, exactly 3 per construct, all 10 kept
+  Bias headings   construct names no longer shown while answering
+  Social media    12 -> 8 items, re-scoped to spending/consumption/saving
+                  and to ads, brands and celebrities as well as creators
+  About you       "Prefer not to say" removed (those items stay optional)
+  api.js          NEW - one place that knows the backend URL, instead of
+                  it being hardcoded in ten files
 
-     npm install
-     node check-mongo.mjs "mongodb+srv://USER:PASSWORD@cluster0.xxxxx.mongodb.net/"
-
-   It will tell you exactly what is wrong, or confirm the user can write.
-
-STEP 2 — PUT IT ON GITHUB
--------------------------
-   npm run setup
-   npm run build
-   git add -A
-   git commit -m "v3.8 - submission fix, consent, mongo checker"
-   git push
-
-STEP 3 — DEPLOY THE BACKEND
----------------------------
-Pushing IS the deploy: Render is already connected to the repo and rebuilds
-automatically. Watch Dashboard → your service → Events.
-
-Then set these on Render (Environment → Add Environment Variable):
-   MONGODB_URI      the string you just verified in step 1
-   RESEARCHER_KEY   any long random string, kept private
-
-Adding a variable triggers another redeploy. When it is Live, open:
-   https://mindfulfinance1-1.onrender.com/api/readiness
-
-You need ALL THREE:
-   "ready": true
-   "storage": "mongodb"
-   "storageOk": true
-
-If storageOk is false, responses are going to a disk Render wipes.
-Do not recruit until it is true.
-
-Full detail in DEPLOY-AND-COLLECT.md.
+Total scaled items: 48 (8 social media + 30 bias + 10 well-being),
+plus 3 social media use covariates and the optional 5-question
+financial knowledge section.

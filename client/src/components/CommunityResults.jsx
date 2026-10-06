@@ -5,6 +5,7 @@
 //   - whether each solution type (incl. Awareness/mindfulness) helped people
 
 import { useEffect, useState } from "react";
+import { api } from "../lib/api.js";
 
 const TYPE_LABELS = { nudge: "Nudges", choice: "Choice architecture", mindful: "Awareness (mindfulness)" };
 
@@ -17,7 +18,7 @@ export default function CommunityResults({ snapshot, canShare }) {
   async function loadResults() {
     setLoading(true);
     try {
-      const r = await fetch("https://mindfulfinance1-3-server.onrender.com/api/results");
+      const r = await fetch(api("/api/results"));
       setResults(await r.json());
     } catch {
       setResults({ error: "Could not reach the server." });
@@ -33,7 +34,7 @@ export default function CommunityResults({ snapshot, canShare }) {
   async function share() {
     setStatus("Sending…");
     try {
-      const res = await fetch("https://mindfulfinance1-3-server.onrender.com/api/submit", {
+      const res = await fetch(api("/api/submit"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...snapshot, nickname }),

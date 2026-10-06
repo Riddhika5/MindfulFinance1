@@ -48,6 +48,14 @@ export const PROFILE = {
   id: "profile",
   title: "About you",
   icon: "👤",
+  // "Prefer not to say" removed from education, occupation and income at the
+  // researcher's instruction. Those three items remain OPTIONAL — a
+  // participant can move on without answering. That matters: removing the
+  // opt-out and then forcing an answer would make a participant who does not
+  // want to disclose their income pick a bracket at random, which is worse
+  // than a blank, because a blank is visibly missing and a wrong bracket is
+  // not. Only gender, age and location are required, because the recruitment
+  // quota cannot place a participant without them.
   note: "A few details about you, so the sample stays balanced across the groups we are recruiting.",
   sourceLine: "Standard demographic covariates. Income bands follow the NCAER/Indian household survey convention; settlement classes follow the RBI Tier-1 to Tier-4 classification.",
   items: [
@@ -55,9 +63,9 @@ export const PROFILE = {
     // quota (300 male / 300 female). A "prefer not to say" response cannot be
     // assigned to a quota cell, so it is not offered here.
     { id: "gender", type: "choice", required: true, q: "Gender", options: ["Male", "Female", "Other"] },
-    { id: "education", type: "choice", q: "Highest level of education completed", options: ["School", "Diploma", "Bachelor's degree", "Master's degree", "Professional degree (CA, CS, CFA, MBBS, LLB, B.Ed, etc.)", "Doctorate", "Prefer not to say"] },
-    { id: "occupation", type: "choice", q: "Current occupation", options: ["Student", "Salaried employee", "Self-employed / business owner", "Freelance / gig work", "Homemaker", "Retired", "Not currently working", "Prefer not to say"] },
-    { id: "income", type: "choice", q: "Approximate monthly household income", options: ["Below ₹25,000", "₹25,000 – ₹50,000", "₹50,001 – ₹1,00,000", "₹1,00,001 – ₹2,00,000", "Above ₹2,00,000", "Prefer not to say"] },
+    { id: "education", type: "choice", q: "Highest level of education completed", options: ["School", "Diploma", "Bachelor's degree", "Master's degree", "Professional degree (CA, CS, CFA, MBBS, LLB, B.Ed, etc.)", "Doctorate"] },
+    { id: "occupation", type: "choice", q: "Current occupation", options: ["Student", "Salaried employee", "Self-employed / business owner", "Freelance / gig work", "Homemaker", "Retired", "Not currently working"] },
+    { id: "income", type: "choice", q: "Approximate monthly household income", options: ["Below ₹25,000", "₹25,000 – ₹50,000", "₹50,001 – ₹1,00,000", "₹1,00,001 – ₹2,00,000", "Above ₹2,00,000"] },
     // Required — drives the location quota.
     { id: "city", type: "choice", required: true, q: "Where do you live?", options: ["Metro / Tier-1 city", "Tier-2 city", "Tier-3 or Tier-4 town", "Rural area"] },
     { id: "investor", type: "choice", q: "Which best describes you as an investor?", options: ["I don't invest yet", "New — less than 1 year", "1–3 years", "3–7 years", "More than 7 years"] },
@@ -194,9 +202,22 @@ export function buildJourney(participantId) {
       title: page.title,
       intro:
         "There are no right answers — choose what is closest to how you usually behave. One tap per row.",
+      // NO HEADING. The construct name is deliberately not shown while the
+      // participant answers.
+      //
+      // This is a measurement decision, not only a cosmetic one. Putting
+      // "Following the crowd" above four items that all describe following
+      // the crowd tells the participant what is being measured, and people
+      // then answer to be consistent with the label rather than with
+      // themselves — the consistency motif, one of the standard sources of
+      // common-method variance (Podsakoff et al., 2003). Removing the label
+      // is one of the cheapest defences against it.
+      //
+      // The grouping still exists in the data: every item keeps its
+      // construct code in the codebook, so scoring and CFA are unaffected.
       groups: constructs.map((c) => ({
         id: c.id,
-        heading: c.plainName,
+        heading: null,
         prompt: c.prompt || null,
         scale: c.scale,
         items: c.items,

@@ -193,6 +193,18 @@ export const SOURCES = {
       "IRT graded-response calibration; CFPB reports marginal reliability rather than α.",
     licence: "Public domain; attribution to CFPB expected.",
   },
+  bearden1989: {
+    key: "bearden1989",
+    citation:
+      "Bearden, W. O., Netemeyer, R. G., & Teel, J. E. (1989). Measurement of consumer susceptibility to interpersonal influence. Journal of Consumer Research, 15(4), 473–481.",
+    doi: "10.1086/209186",
+    instrument:
+      "Consumer Susceptibility to Interpersonal Influence (CSII) — 12 items, two factors: normative influence (buying to match what others expect or admire) and informational influence (treating others' choices as evidence about what is good).",
+    reliability:
+      "Normative α = .82–.88; informational α = .82–.83. Replicated across four studies and widely re-validated since.",
+    licence:
+      "Items printed in the article; free for academic use with citation. Used here as the PARENT for the purchase- and spending-influence items, which are re-anchored from interpersonal influence to social media sources (creators, advertising, brands, celebrities). Reported as contextual adaptation requiring fresh EFA/CFA.",
+  },
   susis2023: {
     key: "susis2023",
     citation:
@@ -447,7 +459,7 @@ export const SM_USE = {
 export const SMFI_CRITERION = {
   id: "sm_acted",
   type: "choice",
-  q: "In the last 12 months, have you made a financial decision (bought, sold, invested, or spent) at least partly because of something you saw on social media?",
+  q: "In the last 12 months, how often have you spent money on something — a purchase, a subscription, a trip, an investment — at least partly because of something you saw on social media?",
   options: ["Never", "Once", "2–3 times", "4–10 times", "More than 10 times"],
   src: "osc2024",
   adapt: "contextual",
@@ -462,54 +474,42 @@ export const SMFI_CRITERION = {
 // ===========================================================================
 export const SMI = {
   id: "smi",
-  title: "Social media influence",
+  title: "Social media and your money",
   icon: "📲",
   scored: true,
   scoring: "mean",
   range: [1, 5],
   scale: "agree5",
   note:
-    "Anchored on a PUBLISHED, VALIDATED instrument: the SOCIAL_PERCEPTION subscale of SUSIS (Alves de Castro, 2023), α = .829. Items 1–9 are the published SUSIS items re-anchored from influencers-in-general to finance creators. Items 10–12 extend the scale to financial adoption, which SUSIS does not cover.",
+    "Re-scoped (October 2026) from investing to EVERYDAY MONEY: spending, buying, consumption and saving. Influence sources broadened from finance creators alone to the whole commercial surface of a feed — creators, advertising, brand marketing, celebrities and peers. Shortened from 12 items to 8.",
   sourceLine:
-    "Adapted from the SUSIS questionnaire — Alves de Castro (2023), Studies in Media and Communication, 11(6), 398–411. SOCIAL_PERCEPTION subscale, α = .829.",
+    "Adapted from the Consumer Susceptibility to Interpersonal Influence scale (Bearden, Netemeyer & Teel, 1989, Journal of Consumer Research) and the SUSIS questionnaire (Alves de Castro, 2023, Studies in Media and Communication).",
   subscales: {
-    perception: "Perception towards influencers (SUSIS C1)",
-    parasocial: "Parasocial relationship (SUSIS C3)",
-    trust: "Consumer trust in influencers (SUSIS C4)",
-    adoption: "Financial information adoption (extension)",
+    susceptibility: "Exposure and susceptibility to commercial influence on social media",
+    decisions: "Influence on actual spending, consumption and saving decisions",
   },
   items: [
-    // --- SUSIS C1 — Perception towards influencers ------------------------
-    { id: "smi1", sub: "perception", src: "susis2023", adapt: "adapted",
-      q: "I follow many finance creators on social media." },
-    { id: "smi2", sub: "perception", src: "susis2023", adapt: "adapted",
-      q: "I enjoy following finance creators online." },
-    { id: "smi3", sub: "perception", src: "susis2023", adapt: "adapted",
-      q: "The finance creators I follow suggest helpful products or ideas to me." },
-    // --- SUSIS C3 — Parasocial relationship -------------------------------
-    { id: "smi4", sub: "parasocial", src: "susis2023", adapt: "adapted",
-      q: "If a finance creator I follow starts another channel, I will follow them there too." },
-    { id: "smi5", sub: "parasocial", src: "susis2023", adapt: "adapted",
-      q: "Finance creators seem to understand the kinds of thing I want to know about money." },
-    { id: "smi6", sub: "parasocial", src: "susis2023", adapt: "adapted",
-      q: "The finance creators I follow are the kind of person I would like to spend time with." },
-    // --- SUSIS C4 — Consumer trust ----------------------------------------
-    { id: "smi7", sub: "trust", src: "susis2023", adapt: "adapted",
-      q: "I would buy a financial product based on the advice of a finance creator I follow." },
-    { id: "smi8", sub: "trust", src: "susis2023", adapt: "adapted",
-      q: "I would follow investment recommendations from the finance creators I follow." },
-    { id: "smi9", sub: "trust", src: "susis2023", adapt: "adapted",
-      q: "In future, I will invest in things recommended by the finance creators I follow." },
-    // --- Financial adoption extension -------------------------------------
-    // SUSIS measures susceptibility to influencers in general. These three
-    // carry the construct into money decisions specifically, which is what
-    // the research question is about. Flagged as an extension, not as SUSIS.
-    { id: "smi10", sub: "adoption", src: "ni2020", adapt: "contextual",
-      q: "Social media is one of my main sources of information about money." },
-    { id: "smi11", sub: "adoption", src: "ni2020", adapt: "contextual",
-      q: "I have changed a money decision because of something I saw on social media." },
-    { id: "smi12", sub: "adoption", src: "ni2020", adapt: "contextual",
-      q: "Social media posts influence which investments I consider." },
+    // --- Susceptibility. Normative + informational influence (Bearden et
+    //     al., 1989), re-anchored from people-you-know to the mix of
+    //     creators, advertising, brands and celebrities in a feed.
+    { id: "smi1", sub: "susceptibility", src: "bearden1989", adapt: "contextual",
+      q: "I come across posts, advertisements or videos about things to buy almost every time I use social media." },
+    { id: "smi2", sub: "susceptibility", src: "bearden1989", adapt: "adapted",
+      q: "When I want to buy something, I look at what creators, brands or celebrities on social media say about it." },
+    { id: "smi3", sub: "susceptibility", src: "bearden1989", adapt: "adapted",
+      q: "Seeing a product promoted on social media — by an influencer, a celebrity or an advertisement — makes me more interested in it." },
+    { id: "smi4", sub: "susceptibility", src: "susis2023", adapt: "adapted",
+      q: "I trust what people I follow on social media say about products, brands and money." },
+    // --- Decision influence. Spending, consumption and saving, which is
+    //     where the research question now sits.
+    { id: "smi5", sub: "decisions", src: "bearden1989", adapt: "contextual",
+      q: "I have bought something mainly because I saw it on social media." },
+    { id: "smi6", sub: "decisions", src: "bearden1989", adapt: "contextual",
+      q: "Social media affects how much money I spend in a typical month." },
+    { id: "smi7", sub: "decisions", src: "ni2020", adapt: "contextual",
+      q: "What I see on social media makes it harder for me to save as much as I intend to." },
+    { id: "smi8", sub: "decisions", src: "ni2020", adapt: "contextual",
+      q: "Social media shapes the kind of lifestyle I feel I ought to be able to afford." },
   ],
 };
 
@@ -599,11 +599,11 @@ export const BIAS_CONSTRUCTS = {
     block: "decisionStyle", scale: "agree5", scoring: "mean",
     src: "waweru2008", src2: "kengatharan2014",
     note: "Herding is the one construct in this battery with strong published reliability (α = .851, Kengatharan & Kengatharan, 2014).",
+    // Trimmed to 3 items (was 4). Removed her4: Speed-of-herding item. Items 1-3 are the canonical Waweru triad (which to buy, how much, when) and carry the construct; this one duplicates them on a reaction-time dimension.
     items: [
       { id: "her1", adapt: "adapted", q: "Other investors' decisions about which investments to buy influence my own decisions." },
       { id: "her2", adapt: "adapted", q: "Other investors' decisions about how much to invest influence my own decisions." },
       { id: "her3", adapt: "adapted", q: "Other investors' decisions about when to buy or sell influence my own decisions." },
-      { id: "her4", adapt: "adapted", q: "I react quickly to changes in other investors' decisions and follow their reactions to the market." },
     ],
   },
   overconfidence: {
@@ -611,10 +611,10 @@ export const BIAS_CONSTRUCTS = {
     block: "confidence", scale: "agree5", scoring: "mean",
     src: "glaserWeber2007", src2: "pompian2006",
     note: "Items 2–3 render Glaser & Weber's better-than-average measure and item 4 their miscalibration measure as agreement items. The source used estimation tasks, so these are documented adaptations requiring fresh EFA/CFA.",
+    // Trimmed to 3 items (was 4). Removed ovc3: Past-performance recall. Overlaps overplacement (item 2) and asks participants to remember returns rather than report a disposition. Dropping it keeps all three Costa et al. dimensions: overestimation, overplacement, overprecision.
     items: [
       { id: "ovc1", adapt: "adapted", q: "I believe my skills and knowledge of the market help me to outperform it." },
       { id: "ovc2", adapt: "adapted", q: "I am better than most investors at identifying investments that will perform above average." },
-      { id: "ovc3", adapt: "adapted", q: "My returns over the past few years have been better than those of most investors I know." },
       { id: "ovc4", adapt: "adapted", q: "When I estimate what an investment will be worth in future, my estimate is usually close to what actually happens." },
     ],
   },
@@ -623,11 +623,11 @@ export const BIAS_CONSTRUCTS = {
     block: "decisionStyle", scale: "agree5", scoring: "mean",
     src: "przybylski2013",
     note: "Investment-adapted from the FoMOs (α = .87–.90). No validated financial-FOMO scale exists; requires fresh EFA/CFA. SCALE NOTE: the source uses 'not at all true of me … extremely true of me' anchors. Because these items are already an adaptation requiring fresh validation, they are administered on the same 5-point agreement scale as the rest of the battery — a uniform metric across all 46 adapted items makes the second-order factor model cleaner and removes a needless source of method variance. The deviation from source anchors must be reported.",
+    // Trimmed to 3 items (was 4). Removed fom4: Self-presentation ('tell people about it'), which is bragging rather than fear of missing out. The weakest fit of the four.
     items: [
       { id: "fom1", adapt: "adapted", q: "I fear that others are making money on opportunities I am missing." },
       { id: "fom2", adapt: "adapted", q: "I get anxious when I do not know what investments the people around me are making." },
       { id: "fom3", adapt: "adapted", q: "It bothers me when I miss the chance to invest in something that is trending." },
-      { id: "fom4", adapt: "adapted", q: "When I make a good return, I feel it is important to tell people about it." },
     ],
   },
   availability: {
@@ -689,10 +689,10 @@ export const BIAS_CONSTRUCTS = {
     block: "confidence", scale: "agree5", scoring: "mean",
     src: "rozenblitKeil2002", src2: "glaserWeber2007", src3: "park2013",
     note: "No validated illusion-of-knowledge scale exists in finance (Franco Moreno et al., 2025). Items render self-rated explanatory depth (Rozenblit & Keil, 2002) and perceived knowledge (Park et al., 2013, α = .81) as agreement items. Item 4 is the explanatory-depth hook. Scored BOTH as a subscale and as a subjective–objective calibration gap against the financial literacy score.",
+    // Trimmed to 3 items (was 4). Removed iok3: Belief that more information improves accuracy. A distinct facet; the three retained items are subjective-knowledge claims, which is what the subjective-objective calibration gap against the literacy score actually needs.
     items: [
       { id: "iok1", adapt: "adapted", q: "I have a good understanding of how the financial products I hold actually work." },
       { id: "iok2", adapt: "adapted", q: "I know enough about the market to judge whether an investment is priced fairly." },
-      { id: "iok3", adapt: "adapted", q: "The more financial information I gather, the more accurate my decisions become." },
       { id: "iok4", adapt: "adapted", q: "I could explain in detail, step by step, how a mutual fund actually generates its returns." },
     ],
   },

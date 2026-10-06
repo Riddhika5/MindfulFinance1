@@ -10,6 +10,8 @@
 // worse than an empty field, because nobody catches it later.
 // ===========================================================================
 
+import { api } from "./api.js";
+
 /**
  * The DREC approval letter, transcribed verbatim from the signed document so
  * the ethics pack can reproduce it as an appendix without a separate file.
@@ -111,7 +113,7 @@ export const ETHICS = {
  */
 export async function loadRuntimeEthics() {
   try {
-    const r = await fetch("https://mindfulfinance1-3-server.onrender.com/api/config");
+    const r = await fetch(api("/api/config"));
     if (!r.ok) return false;
     const d = await r.json();
     if (d?.ethics && typeof d.ethics === "object") {
