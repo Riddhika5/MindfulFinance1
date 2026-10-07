@@ -1,23 +1,26 @@
-MindfulFinance — v3.9
+MindfulFinance — v4.0
 =====================
+THIRTY measurement items for the whole survey:
+   5  social media influence
+  15  behavioural bias (5 constructs x 3)
+  10  financial well-being
+Outside that 30: 3 eligibility checks, 6 About-you items, 2 social media
+use items, 1 criterion item, and the optional 5-question knowledge section.
+
 1. Unzip. Copy client/, server/ and tools/ over your project folder,
    keeping the structure. Overwrite when asked.
 2. In PowerShell, inside the project folder:
      npm run setup
      npm run build
      git add -A
-     git commit -m "v3.9 - shorter instrument, hidden construct labels, SMI re-scoped"
+     git commit -m "v4.0 - 30 items, biases across decision domains"
      git push
 
 WHAT CHANGED
-  Biases          34 -> 30 items, exactly 3 per construct, all 10 kept
-  Bias headings   construct names no longer shown while answering
-  Social media    12 -> 8 items, re-scoped to spending/consumption/saving
-                  and to ads, brands and celebrities as well as creators
-  About you       "Prefer not to say" removed (those items stay optional)
-  api.js          NEW - one place that knows the backend URL, instead of
-                  it being hardcoded in ten files
-
-Total scaled items: 48 (8 social media + 30 bias + 10 well-being),
-plus 3 social media use covariates and the optional 5-question
-financial knowledge section.
+  Biases        10 constructs -> 5, three items each. Each construct now
+                spans investing / consumption / saving instead of asking
+                the same investing question three ways.
+  Headings      construct names hidden; page titles made neutral
+  Social media  8 -> 5 items, every one adapted from a published parent
+  Feed          "How would I check this?" removed
+  Trimmed       platform multi-select, products multi-select

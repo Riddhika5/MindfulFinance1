@@ -108,6 +108,7 @@ function buildVariables() {
     const sc = SCALES[c.scale];
     c.items.forEach((it, n) => {
       add({ name: `${c.code}${n + 1}`, itemId: it.id, label: it.q, type: "number",
+            domain: it.domain || "",
             construct: c.name, range: `1–${sc.points}`,
             values: sc.labels.map((l, i) => `${i + 1}=${l}`).join("; "),
             source: [SOURCES[c.src]?.citation, SOURCES[c.src2]?.citation].filter(Boolean).join(" | ") });
@@ -193,8 +194,6 @@ function buildVariables() {
   // derived scores
   const SCORES = [
     ["SMI_mean", "Social media influence on money decisions, mean", "1–5"],
-    ["SMI_susc", "SMI — exposure and susceptibility to commercial influence", "1–5"],
-    ["SMI_dec", "SMI — influence on spending, consumption and saving decisions", "1–5"],
     ...ALL_BIAS_IDS.map((k) => [`${BIAS_CONSTRUCTS[k].code}_mean`, `${BIAS_CONSTRUCTS[k].name}, subscale mean`, "1–5"]),
     ["BiasIndex", "Composite behavioural bias index (POMP)", "0–100"],
     ["BiasCognitive", "Cognitive biases (POMP mean)", "0–100"],
@@ -233,7 +232,6 @@ function buildVariables() {
     ["KnowGap", "Illusion of knowledge: IOK POMP minus literacy % (positive = overestimates)", "−100–100"],
     ["KnowSubjective", "Subjective knowledge (IOK POMP)", "0–100"],
     ["FeedActionRate", "Proportion of feed posts the participant would act on", "0–1"],
-    ["FeedVerifyRate", "Proportion of feed posts where checking was opened", "0–1"],
   ];
   SCORES.forEach(([name, label, range]) =>
     add({ name, label, type: "number", construct: "DERIVED SCORE", range }));
@@ -272,8 +270,6 @@ function valueFor(v, r) {
     case "DurationMin": return r.durationMs ? Number((r.durationMs / 60000).toFixed(2)) : null;
 
     case "SMI_mean": return s.smi ?? s.smfi ?? null;
-    case "SMI_susc": return s.smiSusceptibility ?? null;
-    case "SMI_dec": return s.smiDecisions ?? null;
     case "BiasIndex": return s.biasIndex ?? null;
     case "BiasCognitive": return s.biasCognitive ?? null;
     case "BiasEmotional": return s.biasEmotional ?? null;
@@ -302,7 +298,6 @@ function valueFor(v, r) {
     case "KnowGap": return s.knowledgeGap ?? null;
     case "KnowSubjective": return s.knowledgeSubjective ?? null;
     case "FeedActionRate": return s.feedActionRate ?? null;
-    case "FeedVerifyRate": return s.feedVerificationRate ?? null;
 
     case "Q_itemsAnswered": return q.itemsAnswered ?? null;
     case "Q_longestRun": return q.longestIdenticalRun ?? null;
@@ -381,6 +376,7 @@ export async function buildWorkbook() {
     { header: "Label", key: "label", width: 62 },
     { header: "Construct", key: "construct", width: 26 },
     { header: "Subscale", key: "subscale", width: 14 },
+    { header: "Decision domain", key: "domain", width: 15 },
     { header: "Type", key: "type", width: 9 },
     { header: "Range", key: "range", width: 11 },
     { header: "Value labels", key: "values", width: 52 },
@@ -389,6 +385,7 @@ export async function buildWorkbook() {
   ];
   vars.forEach((v) => cb.addRow({
     name: v.name, label: v.label, construct: v.construct, subscale: v.subscale || "",
+    domain: v.domain || "",
     type: v.type, range: v.range || "", values: v.values || "", note: v.note || "", source: v.source || "",
   }));
   styleHeader(cb);
@@ -443,9 +440,6 @@ export async function buildWorkbook() {
     { header: "Likes", key: "likes", width: 10 },
     { header: "Decision", key: "decision", width: 11 },
     { header: "DecisionNum", key: "decisionNum", width: 12 },
-    { header: "Reason", key: "reason", width: 14 },
-    { header: "ReasonMapsTo", key: "reasonMaps", width: 16 },
-    { header: "OpenedVerify", key: "openedVerify", width: 13 },
     { header: "DwellMs", key: "dwellMs", width: 10 },
   ];
   const DEC = { invest: 1, verify: 2, scroll: 3 };
@@ -454,8 +448,8 @@ export async function buildWorkbook() {
     order: t.order, postId: t.postId, targetBias: t.targetBias || "", tag: t.tag || "",
     socialProof: t.socialProof || "", likes: t.likes ?? null,
     decision: t.decision || "", decisionNum: DEC[t.decision] ?? null,
-    reason: t.reason || "", reasonMaps: t.reasonMaps || "",
-    openedVerify: t.openedVerify ? 1 : 0, dwellMs: t.dwellMs ?? null,
+    
+    dwellMs: t.dwellMs ?? null,
   })));
   styleHeader(ft);
 

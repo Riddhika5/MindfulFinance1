@@ -22,7 +22,6 @@ export const METRICS = [
   { id: "cfpb", label: "Financial well-being", icon: "💰", max: 40, dir: "up", suffix: "/40" },
   { id: "literacy", label: "Financial literacy", icon: "🧾", max: 5, dir: "up", suffix: "/5" },
   { id: "feedAction", label: "Acted on feed posts", icon: "📱", max: 100, dir: "down", suffix: "%" },
-  { id: "feedVerify", label: "Checked before acting", icon: "🔍", max: 100, dir: "up", suffix: "%" },
 ];
 
 /** Compact a full scored result into a storable wave summary. */
@@ -39,7 +38,6 @@ export function summarise(results, wave) {
       cfpb: results.cfpb?.raw ?? null,
       literacy: results.literacy?.correct ?? null,
       feedAction: results.feed ? Math.round(results.feed.actionRate * 100) : null,
-      feedVerify: results.feed ? Math.round(results.feed.verificationRate * 100) : null,
     },
     biases: Object.fromEntries(
       Object.entries(results.biases?.constructs || {}).map(([k, v]) => [k, { name: v.name, pomp: v.pomp }])

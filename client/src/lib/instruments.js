@@ -412,6 +412,8 @@ export const SM_USE = {
   title: "Your social media use",
   icon: "📱",
   scored: false,
+  // Cut to two items. The platform multi-select asked nine checkboxes to
+  // produce a variable nothing in the analysis plan used.
   note: "Descriptive covariates. Modelled on the usage battery reported alongside Ni et al. (2020) and the OSC (2024) finfluencer survey.",
   sourceLine: "Usage items modelled on the Ontario Securities Commission & The Decision Lab (2024) finfluencer survey and the usage battery reported alongside Ni, Chan & Cheung (2020).",
   items: [
@@ -420,14 +422,6 @@ export const SM_USE = {
       type: "choice",
       q: "On a typical day, roughly how much time do you spend on social media?",
       options: ["Less than 1 hour", "1–2 hours", "3–4 hours", "5 or more hours"],
-      src: "osc2024",
-      adapt: "contextual",
-    },
-    {
-      id: "sm_platforms",
-      type: "multi",
-      q: "Which platforms do you use at least weekly?",
-      options: ["Instagram", "YouTube", "WhatsApp", "X (Twitter)", "LinkedIn", "Reddit", "Facebook", "Telegram", "Other"],
       src: "osc2024",
       adapt: "contextual",
     },
@@ -480,36 +474,31 @@ export const SMI = {
   scoring: "mean",
   range: [1, 5],
   scale: "agree5",
+  // Unidimensional at 5 items. The two-subscale split was dropped with the
+  // cut from 8: two or three indicators per factor is not enough to identify
+  // them separately, and one clean 5-item score is worth more than two
+  // sub-scores neither of which can be defended.
   note:
-    "Re-scoped (October 2026) from investing to EVERYDAY MONEY: spending, buying, consumption and saving. Influence sources broadened from finance creators alone to the whole commercial surface of a feed — creators, advertising, brand marketing, celebrities and peers. Shortened from 12 items to 8.",
+    "Five items, every one adapted from a published parent — no author-invented items. Scope is everyday money (buying, spending, saving) and the influence sources are the whole commercial surface of a feed: creators, advertising, brands, celebrities and peers.",
   sourceLine:
-    "Adapted from the Consumer Susceptibility to Interpersonal Influence scale (Bearden, Netemeyer & Teel, 1989, Journal of Consumer Research) and the SUSIS questionnaire (Alves de Castro, 2023, Studies in Media and Communication).",
-  subscales: {
-    susceptibility: "Exposure and susceptibility to commercial influence on social media",
-    decisions: "Influence on actual spending, consumption and saving decisions",
-  },
+    "Adapted from the Consumer Susceptibility to Interpersonal Influence scale (Bearden, Netemeyer & Teel, 1989, Journal of Consumer Research, 15(4), 473–481), the SUSIS questionnaire (Alves de Castro, 2023) and the Source Credibility Scale (Ohanian, 1990).",
   items: [
-    // --- Susceptibility. Normative + informational influence (Bearden et
-    //     al., 1989), re-anchored from people-you-know to the mix of
-    //     creators, advertising, brands and celebrities in a feed.
-    { id: "smi1", sub: "susceptibility", src: "bearden1989", adapt: "contextual",
-      q: "I come across posts, advertisements or videos about things to buy almost every time I use social media." },
-    { id: "smi2", sub: "susceptibility", src: "bearden1989", adapt: "adapted",
-      q: "When I want to buy something, I look at what creators, brands or celebrities on social media say about it." },
-    { id: "smi3", sub: "susceptibility", src: "bearden1989", adapt: "adapted",
-      q: "Seeing a product promoted on social media — by an influencer, a celebrity or an advertisement — makes me more interested in it." },
-    { id: "smi4", sub: "susceptibility", src: "susis2023", adapt: "adapted",
-      q: "I trust what people I follow on social media say about products, brands and money." },
-    // --- Decision influence. Spending, consumption and saving, which is
-    //     where the research question now sits.
-    { id: "smi5", sub: "decisions", src: "bearden1989", adapt: "contextual",
-      q: "I have bought something mainly because I saw it on social media." },
-    { id: "smi6", sub: "decisions", src: "bearden1989", adapt: "contextual",
-      q: "Social media affects how much money I spend in a typical month." },
-    { id: "smi7", sub: "decisions", src: "ni2020", adapt: "contextual",
-      q: "What I see on social media makes it harder for me to save as much as I intend to." },
-    { id: "smi8", sub: "decisions", src: "ni2020", adapt: "contextual",
-      q: "Social media shapes the kind of lifestyle I feel I ought to be able to afford." },
+    // Informational influence (CSII): treating others' choices as evidence.
+    { id: "smi1", src: "bearden1989", adapt: "adapted",
+      q: "When I want to buy something, I look at what people I follow on social media say about it." },
+    // Normative influence (CSII): buying to match what others have.
+    { id: "smi2", src: "bearden1989", adapt: "adapted",
+      q: "I feel I should own the kinds of things that people I follow on social media have." },
+    // Source credibility (Ohanian 1990), re-anchored from one endorser to the
+    // mix of creators, brands and celebrities a feed actually contains.
+    { id: "smi3", src: "ohanian1990", adapt: "adapted",
+      q: "I trust what creators, brands and celebrities on social media say about products and money." },
+    // Consumer trust → purchase intention (SUSIS C4).
+    { id: "smi4", src: "susis2023", adapt: "adapted",
+      q: "I have bought something because I saw it promoted on social media." },
+    // Engagement → behaviour (Ni et al. 2020), anchored on the spending plan.
+    { id: "smi5", src: "ni2020", adapt: "adapted",
+      q: "What I see on social media makes it harder for me to stick to my spending plans." },
   ],
 };
 
@@ -583,128 +572,110 @@ export const OPEN_ENDED = {
 // ===========================================================================
 
 export const BIAS_BLOCKS = [
-  { id: "decisionStyle",        title: "How you decide",                  icon: "🧭", constructs: ["herding", "fomo"] },
-  { id: "informationProcessing", title: "How you read information",       icon: "🔎", constructs: ["availability", "confirmation", "representativeness", "recency"] },
-  { id: "confidence",           title: "How sure you feel",               icon: "🎯", constructs: ["overconfidence", "illusionOfKnowledge"] },
-  { id: "risk",                 title: "How you handle risk and numbers", icon: "⚖️", constructs: ["lossAversion", "anchoring"] },
+  { id: "decisionStyle", title: "Following others", icon: "🧭", constructs: ["herding", "fomo"] },
+  { id: "judgement", title: "How you judge", icon: "🔎", constructs: ["availability", "anchoring", "overconfidence"] },
 ];
 
 /**
- * Ten constructs, 34 items, all on a 5-point scale.
- * `code` is the short label used in the codebook and CSV export.
+ * FIVE constructs, 15 items, 3 each.
+ * ---------------------------------------------------------------------------
+ * Cut from ten constructs to five so the whole instrument fits 30 items. The
+ * cut is BY CONSTRUCT, not by items within a construct: three items is the
+ * floor at which a construct can still carry a reliability estimate and be
+ * identified in a CFA, so trimming ten constructs to two items each would
+ * have produced ten unusable scales instead of five usable ones.
+ *
+ * Retained: herding, FOMO, availability, anchoring, overconfidence — the five
+ * with the most direct line to a social-media feed and to everyday spending.
+ * Dropped: recency, confirmation, loss aversion, illusion of knowledge,
+ * representativeness. They remain in git history and can be restored.
+ *
+ * EVERY CONSTRUCT NOW SPANS THREE DECISION DOMAINS — investing, spending as a
+ * consumer, and saving. The previous battery asked only about investing
+ * ("other investors", "the market"), which did not match a research question
+ * about consumption and saving; and it asked one question three times in
+ * slightly different words ("...which investments to buy / how much to invest
+ * / when to buy or sell"). One item per domain per construct removes that
+ * repetition, and makes the battery TEST whether a tendency generalises across
+ * domains rather than assuming it does.
+ *
+ * Wording is ADAPTED from the cited parents. Re-anchoring an item to a new
+ * decision domain is a contextual adaptation, so the published reliabilities
+ * belong to the parents and this battery needs its own EFA/CFA.
  */
 export const BIAS_CONSTRUCTS = {
   herding: {
     id: "herding", code: "HER", name: "Herding", plainName: "Following the crowd",
     block: "decisionStyle", scale: "agree5", scoring: "mean",
     src: "waweru2008", src2: "kengatharan2014",
-    note: "Herding is the one construct in this battery with strong published reliability (α = .851, Kengatharan & Kengatharan, 2014).",
-    // Trimmed to 3 items (was 4). Removed her4: Speed-of-herding item. Items 1-3 are the canonical Waweru triad (which to buy, how much, when) and carry the construct; this one duplicates them on a reaction-time dimension.
+    note: "Herding has the strongest published reliability in this battery (α = .851, Kengatharan & Kengatharan, 2014), but that figure belongs to the investing-only parent; the consumer and saving items are re-anchored and need their own estimate.",
     items: [
-      { id: "her1", adapt: "adapted", q: "Other investors' decisions about which investments to buy influence my own decisions." },
-      { id: "her2", adapt: "adapted", q: "Other investors' decisions about how much to invest influence my own decisions." },
-      { id: "her3", adapt: "adapted", q: "Other investors' decisions about when to buy or sell influence my own decisions." },
+      { id: "her1", domain: "investing", adapt: "adapted",
+        q: "When people around me are putting money into something, I feel I should put money into it too." },
+      { id: "her2", domain: "consumption", adapt: "adapted",
+        q: "If something becomes popular with people I know, I am more likely to buy it myself." },
+      { id: "her3", domain: "saving", adapt: "adapted",
+        q: "I judge whether I am saving enough by looking at what people like me seem to be saving." },
     ],
   },
-  overconfidence: {
-    id: "overconfidence", code: "OVC", name: "Overconfidence", plainName: "Backing your own judgment",
-    block: "confidence", scale: "agree5", scoring: "mean",
-    src: "glaserWeber2007", src2: "pompian2006",
-    note: "Items 2–3 render Glaser & Weber's better-than-average measure and item 4 their miscalibration measure as agreement items. The source used estimation tasks, so these are documented adaptations requiring fresh EFA/CFA.",
-    // Trimmed to 3 items (was 4). Removed ovc3: Past-performance recall. Overlaps overplacement (item 2) and asks participants to remember returns rather than report a disposition. Dropping it keeps all three Costa et al. dimensions: overestimation, overplacement, overprecision.
-    items: [
-      { id: "ovc1", adapt: "adapted", q: "I believe my skills and knowledge of the market help me to outperform it." },
-      { id: "ovc2", adapt: "adapted", q: "I am better than most investors at identifying investments that will perform above average." },
-      { id: "ovc4", adapt: "adapted", q: "When I estimate what an investment will be worth in future, my estimate is usually close to what actually happens." },
-    ],
-  },
+
   fomo: {
-    id: "fomo", code: "FOM", name: "FOMO", plainName: "Fear of missing out",
+    id: "fomo", code: "FOM", name: "Fear of missing out", plainName: "Fear of missing out",
     block: "decisionStyle", scale: "agree5", scoring: "mean",
     src: "przybylski2013",
-    note: "Investment-adapted from the FoMOs (α = .87–.90). No validated financial-FOMO scale exists; requires fresh EFA/CFA. SCALE NOTE: the source uses 'not at all true of me … extremely true of me' anchors. Because these items are already an adaptation requiring fresh validation, they are administered on the same 5-point agreement scale as the rest of the battery — a uniform metric across all 46 adapted items makes the second-order factor model cleaner and removes a needless source of method variance. The deviation from source anchors must be reported.",
-    // Trimmed to 3 items (was 4). Removed fom4: Self-presentation ('tell people about it'), which is bragging rather than fear of missing out. The weakest fit of the four.
+    note: "Adapted from the FoMO scale. The parent measures social fear of missing out; these items re-anchor it to money — an opportunity, a purchase, and a comparison.",
     items: [
-      { id: "fom1", adapt: "adapted", q: "I fear that others are making money on opportunities I am missing." },
-      { id: "fom2", adapt: "adapted", q: "I get anxious when I do not know what investments the people around me are making." },
-      { id: "fom3", adapt: "adapted", q: "It bothers me when I miss the chance to invest in something that is trending." },
+      { id: "fom1", domain: "investing", adapt: "adapted",
+        q: "I worry that other people are making money from opportunities I am missing." },
+      { id: "fom2", domain: "consumption", adapt: "adapted",
+        q: "It bothers me to miss a deal or an offer that everyone else seems to be getting." },
+      { id: "fom3", domain: "saving", adapt: "adapted",
+        q: "Seeing what other people can afford makes me feel I am falling behind with my own money." },
     ],
   },
+
   availability: {
-    id: "availability", code: "AVL", name: "Availability", plainName: "Going by what comes to mind",
-    block: "informationProcessing", scale: "agree5", scoring: "mean",
+    id: "availability", code: "AVL", name: "Availability", plainName: "What comes to mind first",
+    block: "judgement", scale: "agree5", scoring: "mean",
     src: "waweru2008", src2: "tverskyKahneman1974",
-    note: "Kengatharan & Kengatharan's availability items were dropped at EFA in the source, so these draw on Waweru et al. (2008) and the original heuristic definition.",
+    note: "Judging how likely or how good something is by how easily examples come to mind. Directly relevant to a feed, which decides what comes to mind.",
     items: [
-      { id: "avl1", adapt: "adapted", q: "I rely on the information that comes to mind most easily when I make money decisions." },
-      { id: "avl2", adapt: "adapted", q: "I prefer to invest in companies I am familiar with rather than ones I know little about." },
-      { id: "avl3", adapt: "adapted", q: "A story I have recently heard about someone gaining or losing money strongly affects what I do next." },
+      { id: "avl1", domain: "investing", adapt: "adapted",
+        q: "If I have heard about an investment several times recently, I think it is more likely to do well." },
+      { id: "avl2", domain: "consumption", adapt: "adapted",
+        q: "Brands I come across often feel more reliable to me than ones I rarely see." },
+      { id: "avl3", domain: "saving", adapt: "adapted",
+        q: "Stories I have heard about people running into money trouble shape how careful I am with my own." },
     ],
   },
-  recency: {
-    id: "recency", code: "REC", name: "Recency", plainName: "Weighting what happened lately",
-    block: "informationProcessing", scale: "agree5", scoring: "mean",
-    src: "nofsinger2017", src2: "kengatharan2014",
-    note: "No standalone validated recency scale exists in investor samples; existing instruments subsume recency within representativeness or extrapolation. Item 1 follows the extrapolation item retained in Kengatharan & Kengatharan (2014). DISCRIMINANT VALIDITY: these items are deliberately confined to TEMPORAL WEIGHTING — recent information outweighing older information — with no reference to resemblance or pattern-matching, which belongs to REP. Check HTMT(REC, REP) < 0.85 at analysis.",
-    items: [
-      { id: "rec1", adapt: "adapted", q: "I forecast future price changes on the basis of recent price changes." },
-      { id: "rec2", adapt: "contextual", q: "How an investment has performed lately matters more to me than how it has performed over many years." },
-      { id: "rec3", adapt: "contextual", q: "Recent news about the market changes my plans more than older information does." },
-    ],
-  },
+
   anchoring: {
-    id: "anchoring", code: "ANC", name: "Anchoring", plainName: "Sticking to the first number",
-    block: "risk", scale: "agree5", scoring: "mean",
+    id: "anchoring", code: "ANC", name: "Anchoring", plainName: "Starting from a number",
+    block: "judgement", scale: "agree5", scoring: "mean",
     src: "kengatharan2014", src2: "tverskyKahneman1974",
+    note: "Anchoring on an arbitrary reference number. The consumer item is the discount anchor, which is the form of anchoring people meet most often on social media.",
     items: [
-      { id: "anc1", adapt: "adapted", q: "I rely on my previous experiences in the market when making my next investment." },
-      { id: "anc2", adapt: "adapted", q: "The price I originally paid strongly affects when I decide to sell an investment." },
-      { id: "anc3", adapt: "adapted", q: "I use recent highs or lows as my reference point for judging whether a price is fair." },
+      { id: "anc1", domain: "consumption", adapt: "adapted",
+        q: "A discount feels like a good deal when the original price shown is high, even if I do not know the usual price." },
+      { id: "anc2", domain: "investing", adapt: "adapted",
+        q: "Whether a price looks cheap or expensive to me depends on the first price I saw for it." },
+      { id: "anc3", domain: "saving", adapt: "adapted",
+        q: "When I set a savings target, I start from a figure I have seen somewhere rather than from my own budget." },
     ],
   },
-  confirmation: {
-    id: "confirmation", code: "CNF", name: "Confirmation bias", plainName: "Looking for agreement",
-    block: "informationProcessing", scale: "agree5", scoring: "mean",
-    src: "park2013",
-    note: "The source measures confirmation bias behaviourally (a −3…+3 selective-exposure click index, N = 502). These items render that selective-exposure paradigm as self-report and require fresh EFA/CFA.",
+
+  overconfidence: {
+    id: "overconfidence", code: "OVC", name: "Overconfidence", plainName: "How sure you feel",
+    block: "judgement", scale: "agree5", scoring: "mean",
+    src: "glaserWeber2007", src2: "pompian2006",
+    note: "Three facets across three domains: overplacement (better than others), overestimation (can tell good from well-marketed) and overprecision (my plan will go as expected). Glaser & Weber measure overconfidence with estimation TASKS rather than Likert items, so these are constructed from the published construct definition and need fresh EFA/CFA.",
     items: [
-      { id: "cnf1", adapt: "adapted", q: "I prefer to read opinions that agree with the view I already hold about an investment." },
-      { id: "cnf2", adapt: "adapted", q: "I pay less attention to information that contradicts a decision I have already made." },
-      { id: "cnf3", adapt: "adapted", q: "When I look into an investment, I mostly look for reasons that support what I already think." },
-    ],
-  },
-  lossAversion: {
-    id: "lossAversion", code: "LAV", name: "Loss aversion", plainName: "Feeling losses more than gains",
-    block: "risk", scale: "agree5", scoring: "mean",
-    src: "kahnemanTversky1979", src2: "kengatharan2014",
-    note: "Prospect-theory-derived self-report. Item 2 follows the prospect item retained in Kengatharan & Kengatharan (2014), α = .618 in the source.",
-    items: [
-      { id: "lav1", adapt: "adapted", q: "Losing ₹1,000 causes me more distress than gaining ₹1,000 causes me pleasure." },
-      { id: "lav2", adapt: "adapted", q: "I avoid selling investments that have fallen in value, and readily sell those that have risen." },
-      { id: "lav3", adapt: "adapted", q: "I avoid investments where I could lose money, even when the expected return is good." },
-    ],
-  },
-  illusionOfKnowledge: {
-    id: "illusionOfKnowledge", code: "IOK", name: "Illusion of knowledge", plainName: "Feeling you understand it",
-    block: "confidence", scale: "agree5", scoring: "mean",
-    src: "rozenblitKeil2002", src2: "glaserWeber2007", src3: "park2013",
-    note: "No validated illusion-of-knowledge scale exists in finance (Franco Moreno et al., 2025). Items render self-rated explanatory depth (Rozenblit & Keil, 2002) and perceived knowledge (Park et al., 2013, α = .81) as agreement items. Item 4 is the explanatory-depth hook. Scored BOTH as a subscale and as a subjective–objective calibration gap against the financial literacy score.",
-    // Trimmed to 3 items (was 4). Removed iok3: Belief that more information improves accuracy. A distinct facet; the three retained items are subjective-knowledge claims, which is what the subjective-objective calibration gap against the literacy score actually needs.
-    items: [
-      { id: "iok1", adapt: "adapted", q: "I have a good understanding of how the financial products I hold actually work." },
-      { id: "iok2", adapt: "adapted", q: "I know enough about the market to judge whether an investment is priced fairly." },
-      { id: "iok4", adapt: "adapted", q: "I could explain in detail, step by step, how a mutual fund actually generates its returns." },
-    ],
-  },
-  representativeness: {
-    id: "representativeness", code: "REP", name: "Representativeness", plainName: "Judging by resemblance",
-    block: "informationProcessing", scale: "agree5", scoring: "mean",
-    src: "tverskyKahneman1974", src2: "waweru2008",
-    note: "DISCRIMINANT VALIDITY: these items are deliberately confined to the SIMILARITY heuristic — judging by resemblance to a category or to past winners (REP1, REP2) and sample-size neglect (REP3) — with no reference to recency, which belongs to REC. REP1 is the classic good-company/good-stock error.",
-    items: [
-      { id: "rep1", adapt: "adapted", q: "A company that makes good products is usually a good investment." },
-      { id: "rep2", adapt: "adapted", q: "I judge an investment by how closely it resembles other investments that have done well." },
-      { id: "rep3", adapt: "adapted", q: "A small amount of information about an investment is enough for me if it fits a pattern I recognise." },
+      { id: "ovc1", domain: "investing", adapt: "adapted",
+        q: "I am better than most people at judging which investments will do well." },
+      { id: "ovc2", domain: "consumption", adapt: "adapted",
+        q: "I can tell a genuinely good product from one that is simply marketed well." },
+      { id: "ovc3", domain: "saving", adapt: "adapted",
+        q: "I am confident my plans for my money will work out the way I expect." },
     ],
   },
 };

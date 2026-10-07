@@ -189,7 +189,6 @@ export async function addResponse({ raw, scored, overQuota = null }) {
       knowledgeSubjective: scored.knowledgeCalibration?.subjective ?? null,
       literacyDK: scored.literacy?.dkCount ?? null,
       feedActionRate: scored.feed?.actionRate ?? null,
-      feedVerificationRate: scored.feed?.verificationRate ?? null,
     },
 
     // --- data-quality flags for transparent exclusion ----------------------
@@ -306,7 +305,6 @@ export async function getResponseAggregate() {
     arm,
     n: rows.length,
     actionRate: mean(rows.map((r) => r.scores.feedActionRate)),
-    verificationRate: mean(rows.map((r) => r.scores.feedVerificationRate)),
   }));
 
   return {
@@ -348,7 +346,7 @@ export async function exportCsv() {
   const meta = ["participantId", "wave", "arm", "startedAt", "submittedAt", "durationMs",
     "q_itemsAnswered", "q_longestIdenticalRun", "q_responseSD", "q_secondsPerItem",
     "q_flagStraightlining", "q_flagTooFast", "q_flagLowVariance",
-    "feed_actionRate", "feed_verificationRate", "instrumentVersion"];
+    "feed_actionRate", "instrumentVersion"];
 
   const header = [...meta, ...[...scoreKeys].sort(), ...[...itemKeys].sort()];
   const rows = [header.join(",")];
@@ -371,7 +369,7 @@ export async function exportCsv() {
 export async function exportFeedCsv() {
   const list = await readAllResponses();
   const header = ["participantId", "wave", "arm", "order", "postId", "targetBias", "tag",
-    "socialProof", "likes", "decision", "reason", "reasonMaps", "openedVerify", "dwellMs"];
+    "socialProof", "likes", "decision", "dwellMs"];
   const rows = [header.join(",")];
   for (const r of list) {
     for (const t of r.feedTrials || []) {

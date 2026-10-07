@@ -196,11 +196,14 @@ export function scoreLiteracy(answers) {
 }
 
 // ---------------------------------------------------------------------------
-// Social Media Financial Influence (newly developed scale)
+// Social media influence.
+// The scale is unidimensional at 5 items, so `subscales` is absent — hence
+// the guard. It was present when the scale had 8 items in two facets, and
+// may return if the scale is ever lengthened again.
 // ---------------------------------------------------------------------------
 export function scoreSMFI(answers) {
   const bySub = {};
-  for (const sub of Object.keys(SMFI.subscales)) {
+  for (const sub of Object.keys(SMFI.subscales || {})) {
     const items = SMFI.items.filter((i) => i.sub === sub);
     bySub[sub] = {
       score: meanOf(items.map((i) => num(answers[i.id]))),
@@ -254,8 +257,12 @@ export function scoreBiases(answers) {
 
   // Second-order grouping follows Pompian's (2006) cognitive / emotional taxonomy:
   // cognitive biases are faulty reasoning, emotional biases are feeling-driven.
-  const COGNITIVE = ["availability", "confirmation", "representativeness", "recency", "anchoring", "overconfidence", "illusionOfKnowledge"];
-  const EMOTIONAL = ["herding", "fomo", "lossAversion"];
+  // Named supersets: only the constructs still in BIAS_CONSTRUCTS contribute,
+  // so dropping a construct cannot leave a composite averaging over nothing.
+  const COGNITIVE = ["availability", "confirmation", "representativeness", "recency",
+                     "anchoring", "overconfidence", "illusionOfKnowledge"]
+    .filter((k) => k in BIAS_CONSTRUCTS);
+  const EMOTIONAL = ["herding", "fomo", "lossAversion"].filter((k) => k in BIAS_CONSTRUCTS);
   const groupMean = (keys) =>
     meanOf(keys.map((k) => constructs[k]?.pomp ?? null));
 
@@ -314,7 +321,6 @@ export function scoreFeed(trials = []) {
   if (!trials.length) return null;
   const n = trials.length;
   const acted = trials.filter((t) => t.decision === "invest").length;
-  const verified = trials.filter((t) => t.openedVerify).length;
   const dwell = trials.map((t) => t.dwellMs).filter((x) => typeof x === "number");
   const medianDwell = dwell.length
     ? dwell.slice().sort((a, b) => a - b)[Math.floor(dwell.length / 2)]
@@ -329,7 +335,6 @@ export function scoreFeed(trials = []) {
   return {
     trials: n,
     actionRate: Number((acted / n).toFixed(3)),
-    verificationRate: Number((verified / n).toFixed(3)),
     medianDwellMs: medianDwell,
     reasonCounts,
     note: "Exploratory behavioural indicators. Keep separate from the validated scale scores in any confirmatory analysis (Kuerzinger & Stangor, 2024; OSC, 2024).",

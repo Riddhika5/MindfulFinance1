@@ -2,8 +2,7 @@
 // FeedSim.jsx — the Simulated Social Media Feed (SSMF), single page
 // ---------------------------------------------------------------------------
 // All posts on one scrollable page, the way a real feed behaves. For each post
-// we record: decision, dwell time, whether the "check it" affordance was
-// opened, the assigned social-proof level, and the arm.
+// we record: decision, dwell time, the assigned social-proof level and the arm.
 //
 // Dwell time here is time-to-first-decision measured from when the card scrolls
 // into view, not from page load — one page means several cards are visible at
@@ -15,6 +14,11 @@
 //   • the 10-second mindful-pause delay is gone, with the mindfulness layer
 //   • the prebunking screen that preceded the feed is gone, so the feed is
 //     genuinely one page
+//   • the "How would I check this?" panel is gone (October 2026). It was the
+//     only prompt in the feed, and a prompt to verify is an intervention:
+//     showing it teaches the behaviour it then measures. Removing it leaves
+//     the feed purely observational. The cost is that verification rate is no
+//     longer a dependent variable — decision and dwell time remain.
 //   • the paid-promotion disclosure banner is gone — nothing in this study is
 //     sponsored, so a banner implying otherwise would have been inaccurate.
 //     That removes the last treatment arm, so the feed is now a behavioural
@@ -32,7 +36,6 @@ const fmt = (n) => (n >= 1000 ? `${(n / 1000).toFixed(1).replace(/\.0$/, "")}K` 
 function PostCard({ post, arm, trial, onChange, onSeen }) {
   const ref = useRef(null);
   const seen = useRef(false);
-  const [showVerify, setShowVerify] = useState(false);
 
   // Start this card's clock when it actually reaches the viewport.
   useEffect(() => {
@@ -80,24 +83,8 @@ function PostCard({ post, arm, trial, onChange, onSeen }) {
             </button>
           ))}
         </div>
-        <button
-          className="link-btn"
-          onClick={() => { setShowVerify((v) => !v); if (!showVerify) onChange(post.id, { openedVerify: true }); }}
-        >
-          {showVerify ? "Hide" : "🔍 How would I check this?"}
-        </button>
       </div>
 
-      {showVerify && (
-        <div className="verify-panel">
-          <ul>
-            <li>Is the person registered with the regulator, or just confident?</li>
-            <li>Are they paid to say this? Look for a disclosure.</li>
-            <li>Does an independent source say the same thing?</li>
-            <li>What is the downside — and could you afford it?</li>
-          </ul>
-        </div>
-      )}
     </article>
   );
 }
@@ -137,7 +124,6 @@ export default function FeedSim({ session, arm, answers, setAnswer, onComplete, 
         likes: p.metrics.likes,
         arm: arm.id,
         decision: t.decision || null,
-        openedVerify: !!t.openedVerify,
         dwellMs: t.dwellMs ?? null,
         order: i,
       };

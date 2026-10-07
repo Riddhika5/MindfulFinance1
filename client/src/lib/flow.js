@@ -69,7 +69,6 @@ export const PROFILE = {
     // Required — drives the location quota.
     { id: "city", type: "choice", required: true, q: "Where do you live?", options: ["Metro / Tier-1 city", "Tier-2 city", "Tier-3 or Tier-4 town", "Rural area"] },
     { id: "investor", type: "choice", q: "Which best describes you as an investor?", options: ["I don't invest yet", "New — less than 1 year", "1–3 years", "3–7 years", "More than 7 years"] },
-    { id: "products", type: "multi", q: "Which of these do you currently hold?", options: ["Savings only", "Fixed deposits", "Mutual funds / SIP", "Direct stocks", "Gold", "Crypto", "Insurance-linked plans", "None of these"] },
   ],
 };
 
@@ -168,27 +167,25 @@ export function buildJourney(participantId) {
   // Page titles are plain-language descriptions of what the participant is
   // being asked about, not construct jargon.
   // ---------------------------------------------------------------------
+  // Two pages now, not three — 15 items instead of 34.
+  // Page titles are deliberately NEUTRAL. They describe the kind of decision
+  // being asked about, never the construct: a participant who is told the
+  // block measures "fear of missing out" answers to match the label rather
+  // than themselves.
   const PAGES = [
     {
       id: "bias_a",
-      title: "Following others, and fear of missing out",
+      title: "When other people are involved",
       icon: "🧭",
       blocks: ["decisionStyle"],
     },
     {
       id: "bias_b",
-      title: "How you weigh information",
+      title: "How you size things up",
       icon: "🔎",
-      blocks: ["informationProcessing"],
-    },
-    {
-      id: "bias_c",
-      title: "Confidence, risk and reference points",
-      icon: "🎯",
-      blocks: ["confidence", "risk"],
+      blocks: ["judgement"],
     },
   ];
-
   for (const page of PAGES) {
     const constructIds = page.blocks
       .flatMap((bid) => BIAS_BLOCKS.find((b) => b.id === bid).constructs);

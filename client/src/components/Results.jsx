@@ -83,9 +83,7 @@ function insightFor(results) {
     }
   }
 
-  if (results.feed && results.feed.verificationRate >= 0.4) {
-    lines.push("In the simulated feed you opened the 'how would I check this' option often. That habit is worth more than any single insight on this page.");
-  } else if (results.feed && results.feed.actionRate >= 0.4) {
+  if (results.feed && results.feed.actionRate >= 0.4) {
     lines.push("In the simulated feed you were fairly quick to act on posts. Building in one checking step is the highest-value change available to you.");
   }
 
@@ -260,8 +258,7 @@ export default function Results({ session, onRestart, onExit, onContinue, embedd
             <div className="notice notice-soft">
               <h4>In the simulated feed</h4>
               <p>
-                You said you'd act on <strong>{Math.round(results.feed.actionRate * 100)}%</strong> of posts,
-                and opened the checking panel on <strong>{Math.round(results.feed.verificationRate * 100)}%</strong>.
+                You said you'd act on <strong>{Math.round(results.feed.actionRate * 100)}%</strong> of posts.
                 Median time per post: {Math.round((results.feed.medianDwellMs || 0) / 1000)}s.
               </p>
             </div>

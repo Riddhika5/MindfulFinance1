@@ -9,7 +9,7 @@ import { SOURCES, SMI, SMFI_CRITERION, OPEN_ENDED, BIAS_CONSTRUCTS, MAAS, CFPB, 
 const L = [];
 const P = (s = "") => L.push(s);
 
-P("# MindfulFinance — Full Questionnaire (Instrument v3.9)");
+P("# MindfulFinance — Full Questionnaire (Instrument v4.0)");
 P();
 P("*Appendix-ready. Every item with its code, source and provenance level. Provenance: **verbatim** = published wording; **adapted** = published item re-anchored to this context; **contextual** = built from the source construct definition where no transferable wording exists.*");
 P();
@@ -59,24 +59,20 @@ P();
 
 P("## Section 4 — Social media influence on money decisions (SMI)");
 P();
-P(`**${SMI.items.length} items · 5-point agreement.** Re-scoped from investing to EVERYDAY MONEY — spending, buying, consumption and saving — and broadened from finance creators alone to the whole commercial surface of a feed: creators, advertising, brand marketing, celebrities and peers. Shortened from 12 items to ${SMI.items.length}.`);
+P(`**${SMI.items.length} items · 5-point agreement · unidimensional.** Every item is adapted from a published parent — none is author-written. Scope is everyday money (buying, spending, saving); influence sources are the whole commercial surface of a feed: creators, advertising, brands, celebrities and peers.`);
 P();
-P("Two sub-dimensions:");
+P("| Parent | Contributes |");
+P("|---|---|");
+P("| Bearden, Netemeyer & Teel (1989), CSII | SMI1 informational influence, SMI2 normative influence |");
+P("| Ohanian (1990), Source Credibility Scale | SMI3 trust in the source |");
+P("| Alves de Castro (2023), SUSIS | SMI4 consumer trust → purchase |");
+P("| Ni, Chan & Cheung (2020) | SMI5 engagement → behaviour |");
 P();
-P("- **Susceptibility** (SMI1–SMI4) — exposure to commercial content and how persuasive the participant finds it, across sources.");
-P("- **Decision influence** (SMI5–SMI8) — whether it actually moves spending, saving and the lifestyle they feel they should afford.");
+P("> **Provenance.** Each parent is validated, but re-anchoring an item to a social-media context is a contextual adaptation, not a validated transfer. The parents' reliabilities are the parents'. This scale needs its own EFA → CFA → HTMT in your sample and must be reported as adapted.");
 P();
-P(`**Parent scale:** ${SOURCES.bearden1989.citation}`);
-P();
-P(`**Reliability reported in the parent:** ${SOURCES.bearden1989.reliability}`);
-P();
-P(`**Second parent (item SMI4):** ${SOURCES.susis2023.citation}`);
-P();
-P("> **Provenance, stated plainly.** The CSII measures susceptibility to the people you know; these items re-anchor it to the people, brands and advertisements in a feed. That is a contextual adaptation, not a validated transfer, so the scale must be reported as adapted and carry fresh EFA → CFA → HTMT in this sample. The published α values above belong to the parent, not to this version.");
-P();
-P("| Code | Sub-dimension | Item | Provenance |");
+P("| Code | Item | Parent | Provenance |");
 P("|---|---|---|---|");
-SMI.items.forEach((it, n) => P(`| SMI${n + 1} | ${it.sub} | ${it.q} | ${it.adapt} |`));
+SMI.items.forEach((it, n) => P(`| SMI${n + 1} | ${it.q} | ${it.src} | ${it.adapt} |`));
 P();
 P("**Criterion item (not scored into SMI).** Shown at the foot of the same page. Tests whether the SMI scale predicts self-reported behaviour outside itself.");
 P();
@@ -87,7 +83,11 @@ P();
 
 P("## Section 5 — Behavioural biases");
 P();
-P("**10 constructs · 30 items, 3 per construct · one shared 5-point agreement scale.** Presented on three screens under the heading *Your decision-making style*, as a compact matrix, with item order randomised within each construct. **No construct name is shown to the participant.** Labelling a block \"Following the crowd\" tells people what is being measured and invites them to answer consistently with the label rather than with themselves (the consistency motif; Podsakoff et al., 2003). The grouping is preserved in the codebook, so scoring and CFA are unaffected. Screen 1: following others and fear of missing out. Screen 2: how you weigh information. Screen 3: confidence, risk and reference points.");
+P("**5 constructs · 15 items, 3 per construct · one shared 5-point agreement scale.** Presented on TWO screens with neutral titles — *When other people are involved* and *How you size things up*. **No construct name is shown to the participant.** Labelling a block \"Fear of missing out\" tells people what is being measured and invites them to answer consistently with the label rather than with themselves (the consistency motif; Podsakoff et al., 2003). The grouping is preserved in the codebook, so scoring and CFA are unaffected.");
+P();
+P("**Each construct is measured across THREE DECISION DOMAINS** — investing, spending as a consumer, and saving — one item each. The earlier battery asked only about investing and asked the same question three times in slightly different words. Spreading the three items across domains removes that repetition and lets the analysis test whether a tendency generalises rather than assuming it does. The decision domain is carried on every item in the codebook.");
+P();
+P("Cut from ten constructs to five so the instrument fits 30 items. The cut is by CONSTRUCT, not by items within one: three items is the floor at which a construct can carry a reliability estimate and be identified in a CFA, so ten constructs at two items each would have produced ten unusable scales instead of five usable ones. Dropped: recency, confirmation, loss aversion, illusion of knowledge, representativeness.");
 P();
 for (const c of Object.values(BIAS_CONSTRUCTS)) {
   const s1 = SOURCES[c.src];
@@ -98,9 +98,9 @@ for (const c of Object.values(BIAS_CONSTRUCTS)) {
   P(`**Adapted from:** ${s1.citation}${s2 ? `  \n**and:** ${s2.citation}` : ""}${s3 ? `  \n**and:** ${s3.citation}` : ""}`);
   P();
   if (c.note) { P(`> ${c.note}`); P(); }
-  P("| Code | Item | Provenance |");
-  P("|---|---|---|");
-  c.items.forEach((it, n) => P(`| ${c.code}${n + 1} | ${it.q} | ${it.adapt} |`));
+  P("| Code | Domain | Item | Provenance |");
+  P("|---|---|---|---|");
+  c.items.forEach((it, n) => P(`| ${c.code}${n + 1} | ${it.domain} | ${it.q} | ${it.adapt} |`));
   P();
 }
 

@@ -137,8 +137,7 @@ ${
 ${
   results.feed
     ? `<h2>In the simulated feed</h2>
-<p>You said you would act on <strong>${Math.round(results.feed.actionRate * 100)}%</strong> of the posts you
-saw, and opened the checking panel on <strong>${Math.round(results.feed.verificationRate * 100)}%</strong>.
+<p>You said you would act on <strong>${Math.round(results.feed.actionRate * 100)}%</strong> of the posts you saw.
 Your median time per post was ${Math.round((results.feed.medianDwellMs || 0) / 1000)} seconds.</p>`
     : ""
 }
